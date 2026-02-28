@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#00f0ff">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Música">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Apreciación Musical · Prof. William</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#06040f;--card:rgba(13,9,30,.95);--blue:#00f0ff;--purple:#bf00ff;
+  --green:#00ff88;--pink:#ff00aa;--yellow:#ffe000;--orange:#ff8c00;
+  --text:#e0d8ff;--muted:rgba(224,216,255,.55);
+}
+/* Mejora de contraste general — textos más brillantes */
+.mat-t{font-weight:800;font-size:.92em;color:#f0ecff;margin-bottom:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mat-s{font-size:.71em;color:rgba(224,216,255,.75);line-height:1.3}
+.q-question{text-align:center;font-size:1.02em;font-weight:700;color:#ddd8ff;
+  margin-bottom:18px;line-height:1.45}
+/* Modo luz ambiental alta: fondo más claro, texto oscuro */
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#1a1035;--card:rgba(20,14,50,.97);--text:#ffffff;--muted:rgba(255,255,255,.7);
+  }
+  .mat-t{color:#ffffff}
+  .mat-s{color:rgba(255,255,255,.78)}
+  .q-question{color:#ede8ff}
+  .opt{background:rgba(255,255,255,.09);border-color:rgba(0,240,255,.4);color:#ffffff}
+  .fb.ok{background:rgba(0,255,136,.15);color:#c8ffe8}
+  .fb.ko{background:rgba(255,0,100,.15);color:#ffd0dc}
+  .topbar{background:rgba(10,6,30,.98)}
+  .topbar-user{color:rgba(255,255,255,.75)}
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overscroll-behavior:none}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;min-height:100dvh;overflow-x:hidden;
+  user-select:none;-webkit-user-select:none;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+#sf{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.st{position:absolute;border-radius:50%;background:#fff;animation:tw var(--d,3s) ease-in-out infinite}
+@keyframes tw{0%,100%{opacity:.12;transform:scale(1)}50%{opacity:.85;transform:scale(1.5)}}
+.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0;animation:of 10s ease-in-out infinite}
+.orb1{width:260px;height:260px;background:rgba(191,0,255,.18);top:-80px;left:-80px}
+.orb2{width:210px;height:210px;background:rgba(0,240,255,.14);bottom:60px;right:-70px;animation-delay:-5s}
+.orb3{width:160px;height:160px;background:rgba(255,140,0,.11);top:40%;left:55%;animation-delay:-2.5s}
+@keyframes of{0%,100%{transform:translateY(0)}50%{transform:translateY(26px)}}
+.screen{display:none;position:relative;z-index:1;min-height:100vh;min-height:100dvh;flex-direction:column;animation:fin .3s ease}
+.screen.active{display:flex}
+@keyframes fin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pu{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+
+/* LOGIN */
+#s-login{align-items:center;justify-content:center;padding:30px 22px;min-height:100vh;min-height:100dvh}
+.lg-logo{font-size:4.2em;margin-bottom:8px;animation:pu 2s ease-in-out infinite}
+.lg-title{font-family:'Orbitron',sans-serif;font-size:1.45em;font-weight:900;color:var(--blue);
+  text-shadow:0 0 22px rgba(0,240,255,.5);text-align:center;letter-spacing:2px;margin-bottom:3px}
+.lg-sub{font-size:.82em;color:var(--muted);text-align:center;margin-bottom:28px;letter-spacing:1px}
+.lg-card{background:var(--card);border:1px solid rgba(0,240,255,.22);border-radius:22px;
+  padding:26px 22px;width:100%;max-width:360px;position:relative;overflow:hidden;
+  box-shadow:0 0 50px rgba(0,240,255,.07)}
+.lg-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--blue),var(--purple),transparent)}
+.lbl{font-size:.72em;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--purple);margin-bottom:7px;display:block}
+.inp{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(0,240,255,.25);
+  border-radius:12px;padding:13px 15px;font-family:'Nunito',sans-serif;font-size:.97em;
+  font-weight:700;color:var(--text);outline:none;letter-spacing:1px;transition:all .2s;margin-bottom:14px}
+.inp::placeholder{color:rgba(224,216,255,.22);letter-spacing:0}
+.inp:focus{border-color:var(--blue);box-shadow:0 0 14px rgba(0,240,255,.18)}
+.lg-hint{font-size:.7em;color:var(--muted);margin-bottom:20px;line-height:1.45}
+.btn-lg{width:100%;padding:14px;font-family:'Orbitron',sans-serif;font-size:.86em;font-weight:700;
+  letter-spacing:1px;background:linear-gradient(135deg,#4f00c8,#0080ff);color:#fff;
+  border:none;border-radius:12px;cursor:pointer;text-transform:uppercase;
+  box-shadow:0 4px 22px rgba(0,128,255,.38);transition:all .2s;
+  touch-action:manipulation;min-height:48px}
+.btn-lg:active{transform:scale(.97)}
+.lg-err{color:var(--pink);font-size:.78em;font-weight:700;text-align:center;margin-top:10px;display:none}
+
+/* HOME */
+#s-home{padding-bottom:80px;overflow-x:hidden}
+.topbar{background:rgba(6,4,15,.96);border-bottom:1px solid rgba(0,240,255,.2);
+  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(12px)}
+.topbar-title{font-family:'Orbitron',sans-serif;font-size:.8em;font-weight:700;
+  color:var(--blue);letter-spacing:2px;text-shadow:0 0 8px var(--blue)}
+.topbar-user{font-size:.72em;color:var(--muted)}
+.topbar-user b{color:var(--yellow)}
+.btn-out{background:none;border:1px solid rgba(0,240,255,.2);border-radius:8px;
+  padding:5px 10px;font-size:.68em;color:var(--muted);cursor:pointer;font-family:'Nunito',sans-serif}
+.btn-out:active{border-color:var(--pink);color:var(--pink)}
+.home-body{padding:16px 14px;max-width:440px;margin:0 auto;width:100%;overflow-x:hidden}
+.unit-banner{background:linear-gradient(135deg,rgba(191,0,255,.14),rgba(0,240,255,.09));
+  border:1px solid rgba(0,240,255,.2);border-radius:20px;padding:16px 18px;
+  margin-bottom:20px;position:relative;overflow:hidden}
+.unit-banner::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--purple),var(--blue))}
+.unit-lbl{font-size:.62em;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--purple);margin-bottom:3px}
+.unit-name{font-family:'Orbitron',sans-serif;font-size:.98em;font-weight:900;
+  color:var(--blue);line-height:1.35;margin-bottom:10px}
+.uprog-lbl{font-size:.63em;color:var(--muted);display:flex;justify-content:space-between;margin-bottom:4px}
+.uprog-bar{background:rgba(255,255,255,.08);border-radius:8px;height:7px;overflow:hidden}
+.uprog-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--blue));
+  border-radius:8px;transition:width .6s ease;box-shadow:0 0 8px var(--blue)}
+.sec-title{font-size:.62em;font-weight:800;letter-spacing:2px;text-transform:uppercase;
+  color:var(--muted);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.sec-title::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.07)}
+.mat-grid{display:flex;flex-direction:column;gap:9px;width:100%}
+.mat-card{background:var(--card);border:1.5px solid rgba(255,255,255,.07);border-radius:15px;
+  padding:13px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .2s;
+  touch-action:manipulation;width:100%;box-sizing:border-box;min-width:0}
+.mat-card:active{transform:scale(.975)}
+.mat-card.locked{opacity:.52;cursor:default}
+.mat-card.qtype{border-left:3px solid var(--blue)}
+.mat-card.ptype{border-left:3px solid var(--orange)}
+.mat-card.atype{border-left:3px solid var(--green)}
+.mat-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;
+  justify-content:center;font-size:1.35em;flex-shrink:0}
+.qtype .mat-icon{background:rgba(0,240,255,.1)}
+.ptype .mat-icon{background:rgba(255,140,0,.1)}
+.atype .mat-icon{background:rgba(0,255,136,.1)}
+.mat-info{flex:1;min-width:0;overflow:hidden}
+.mat-t{font-weight:800;font-size:.92em;color:var(--text);margin-bottom:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mat-s{font-size:.7em;color:var(--muted);line-height:1.3}
+.mini-stars{font-size:.78em;margin-top:2px}
+.badge{font-size:.65em;font-weight:800;padding:4px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;max-width:70px;text-align:center}
+.b-done{background:rgba(0,255,136,.12);color:var(--green);border:1px solid rgba(0,255,136,.3)}
+.b-new{background:rgba(0,240,255,.1);color:var(--blue);border:1px solid rgba(0,240,255,.3)}
+.b-lock{background:rgba(255,255,255,.06);color:var(--muted);border:1px solid rgba(255,255,255,.1)}
+.b-pdf{background:rgba(255,140,0,.1);color:var(--orange);border:1px solid rgba(255,140,0,.3)}
+.b-aud{background:rgba(0,255,136,.1);color:var(--green);border:1px solid rgba(0,255,136,.25)}
+
+/* QUIZ SCREEN */
+#s-quiz{padding-bottom:0}
+.quiz-bar{background:rgba(6,4,15,.97);border-bottom:1px solid rgba(0,240,255,.2);
+  padding:11px 14px;display:flex;align-items:center;gap:11px;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);flex-shrink:0}
+.btn-back{background:rgba(255,255,255,.06);border:1px solid rgba(0,240,255,.25);
+  border-radius:10px;padding:7px 13px;font-family:'Nunito',sans-serif;font-size:.8em;
+  font-weight:700;color:var(--blue);cursor:pointer;flex-shrink:0;
+  touch-action:manipulation;min-height:38px}
+.btn-back:active{transform:scale(.96)}
+.quiz-bar-title{font-family:'Orbitron',sans-serif;font-size:.72em;font-weight:700;
+  color:var(--text);letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#quiz-content{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px 14px 40px;max-width:440px;width:100%;margin:0 auto}
+
+/* HUD */
+.q-hud{display:flex;align-items:center;gap:9px;margin-bottom:13px}
+.q-score{background:rgba(0,240,255,.1);border:1px solid rgba(0,240,255,.35);
+  border-radius:20px;padding:5px 12px;font-family:'Orbitron',sans-serif;
+  font-size:.8em;color:var(--blue);white-space:nowrap}
+.q-score b{color:var(--yellow)}
+.qprog-wrap{flex:1}
+.qprog-lbl{font-size:.6em;color:var(--muted);text-align:right;margin-bottom:3px}
+.qprog-bar{background:rgba(255,255,255,.07);border-radius:10px;height:7px;overflow:hidden;
+  border:1px solid rgba(0,240,255,.16)}
+.qprog-fill{height:100%;background:linear-gradient(90deg,var(--purple),var(--blue));
+  border-radius:10px;width:0%;transition:width .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 7px var(--blue)}
+
+/* CARD */
+.q-card{background:var(--card);border:1px solid rgba(0,240,255,.2);border-radius:22px;
+  padding:14px 16px 20px;position:relative;overflow:hidden;
+  box-shadow:0 0 36px rgba(0,240,255,.06),inset 0 1px 0 rgba(255,255,255,.04)}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--blue),var(--purple),transparent)}
+.q-emoji{text-align:center;margin-bottom:2px;animation:pu 2.2s ease-in-out infinite}
+.q-emoji .emoji-txt{display:block;font-size:2.2em;filter:drop-shadow(0 0 10px rgba(0,240,255,.4));margin:0 auto}
+.q-emoji svg{display:block;margin:0 auto}
+.q-name{font-family:'Orbitron',sans-serif;font-size:1.3em;font-weight:900;
+  text-align:center;color:var(--blue);text-shadow:0 0 16px rgba(0,240,255,.48);
+  letter-spacing:2px;margin-bottom:4px}
+.q-type-lbl{text-align:center;font-size:.6em;font-weight:800;letter-spacing:2px;
+  text-transform:uppercase;color:var(--purple);margin-bottom:8px}
+.q-question{text-align:center;font-size:1.02em;font-weight:700;color:#c5bcff;
+  margin-bottom:18px;line-height:1.45}
+.opts{display:flex;flex-direction:column;gap:9px;margin-bottom:13px}
+.opt{background:rgba(255,255,255,.04);border:1.5px solid rgba(0,240,255,.2);
+  border-radius:13px;padding:12px 15px;font-size:.94em;font-family:'Nunito',sans-serif;
+  font-weight:700;color:var(--text);cursor:pointer;text-align:left;
+  display:flex;align-items:center;gap:10px;transition:all .2s;width:100%;
+  min-height:48px;touch-action:manipulation}
+.opt:active{transform:scale(.97)}
+.opt-l{width:26px;height:26px;border-radius:50%;background:rgba(0,240,255,.1);
+  border:1px solid rgba(0,240,255,.3);display:flex;align-items:center;justify-content:center;
+  font-family:'Orbitron',sans-serif;font-size:.58em;font-weight:700;color:var(--blue);flex-shrink:0}
+.opt.correct{background:rgba(0,255,136,.12)!important;border-color:var(--green)!important;
+  color:#b0fff8;box-shadow:0 0 18px rgba(0,255,136,.2)!important}
+.opt.correct .opt-l{background:rgba(0,255,136,.18);border-color:var(--green);color:var(--green)}
+.opt.wrong{background:rgba(255,0,100,.1)!important;border-color:var(--pink)!important;
+  color:#ffb0c8;box-shadow:0 0 14px rgba(255,0,100,.15)!important}
+.opt.wrong .opt-l{background:rgba(255,0,100,.14);border-color:var(--pink);color:var(--pink)}
+.opt[disabled]{cursor:default;pointer-events:none}
+.fb{display:none;border-radius:12px;padding:12px 14px;font-size:.88em;
+  line-height:1.5;margin-bottom:12px;animation:fin .3s ease}
+.fb.ok{background:rgba(0,255,136,.08);border:1px solid rgba(0,255,136,.28);color:#a8ffd8}
+.fb.ko{background:rgba(255,0,100,.08);border:1px solid rgba(255,0,100,.28);color:#ffc0d0}
+.btn-next{display:none;width:100%;padding:14px;font-family:'Orbitron',sans-serif;
+  font-size:.86em;font-weight:700;letter-spacing:1px;border:none;border-radius:13px;
+  cursor:pointer;background:linear-gradient(135deg,#4f00c8,#0080ff);color:#fff;
+  box-shadow:0 4px 18px rgba(0,128,255,.35);text-transform:uppercase;transition:all .2s;
+  min-height:48px;touch-action:manipulation}
+.btn-next:active{transform:scale(.97)}
+
+/* RESULTADO */
+#q-result{display:none;text-align:center;padding:10px 0}
+.res-trophy{font-size:4.5em;margin-bottom:8px;animation:bo 1s ease infinite}
+@keyframes bo{0%,100%{transform:translateY(0)}50%{transform:translateY(-11px)}}
+.res-title{font-family:'Orbitron',sans-serif;font-size:1.35em;font-weight:900;
+  color:var(--yellow);text-shadow:0 0 18px rgba(255,224,0,.42);margin-bottom:6px}
+.res-stars{font-size:1.8em;margin:7px 0 12px;letter-spacing:4px}
+.res-score{font-size:1em;color:var(--text);margin-bottom:14px}
+.res-score b{color:var(--green);font-family:'Orbitron',sans-serif;font-size:1.2em}
+.code-box{background:rgba(0,255,136,.07);border:1px solid rgba(0,255,136,.28);
+  border-radius:13px;padding:13px 16px;margin-bottom:18px}
+.code-box p{font-size:.8em;color:#a8ffd8;margin-bottom:4px}
+.code-val{font-family:'Orbitron',sans-serif;font-size:1.5em;font-weight:900;
+  color:var(--green);text-shadow:0 0 14px rgba(0,255,136,.48);letter-spacing:3px}
+.res-btns{display:flex;flex-direction:column;gap:9px}
+.btn-pri{padding:14px;font-family:'Orbitron',sans-serif;font-size:.86em;font-weight:700;
+  letter-spacing:1px;background:linear-gradient(135deg,#4f00c8,#0080ff);color:#fff;
+  border:none;border-radius:13px;cursor:pointer;text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(0,128,255,.35);transition:all .2s;
+  min-height:48px;touch-action:manipulation}
+.btn-pri:active{transform:scale(.97)}
+.btn-sec{padding:12px;font-family:'Nunito',sans-serif;font-size:.9em;font-weight:700;
+  background:rgba(255,255,255,.05);color:var(--blue);
+  border:1px solid rgba(0,240,255,.28);border-radius:12px;cursor:pointer;transition:all .2s;
+  min-height:44px;touch-action:manipulation}
+.btn-sec:active{transform:scale(.97)}
+
+/* MATERIAL */
+#s-material .quiz-bar{border-bottom-color:rgba(255,140,0,.2)}
+.mat-body{padding:18px 14px;max-width:440px;margin:0 auto;flex:1}
+.mat-view-title{font-family:'Orbitron',sans-serif;font-size:1.05em;font-weight:900;
+  color:var(--orange);text-shadow:0 0 14px rgba(255,140,0,.38);margin-bottom:4px}
+.mat-view-sub{font-size:.78em;color:var(--muted);margin-bottom:18px}
+.ph-box{background:var(--card);border:1.5px dashed rgba(255,140,0,.3);
+  border-radius:16px;padding:32px 22px;text-align:center}
+.ph-icon{font-size:3.2em;margin-bottom:10px}
+.ph-msg{font-size:.87em;color:var(--muted);line-height:1.6}
+.ph-msg b{color:var(--orange)}
+.aud-player{background:var(--card);border:1.5px solid rgba(0,255,136,.25);
+  border-radius:16px;padding:22px 18px;text-align:center}
+
+/* MODAL PIN */
+#pin-modal{display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(6,4,15,.9);backdrop-filter:blur(14px);
+  align-items:center;justify-content:center;padding:22px}
+#pin-modal.open{display:flex}
+.pin-card{background:var(--card);border:1px solid rgba(0,240,255,.25);border-radius:22px;
+  padding:26px 22px;width:100%;max-width:340px;position:relative;overflow:hidden;text-align:center}
+.pin-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--blue),var(--purple),transparent)}
+.pin-icon{font-size:2.4em;margin-bottom:7px}
+.pin-title{font-family:'Orbitron',sans-serif;font-size:.95em;font-weight:700;
+  color:var(--blue);margin-bottom:4px;letter-spacing:1px}
+.pin-sub{font-size:.76em;color:var(--muted);margin-bottom:18px;line-height:1.45}
+.pin-inp{width:100%;background:rgba(255,255,255,.05);border:1.5px solid rgba(0,240,255,.25);
+  border-radius:12px;padding:13px 14px;font-family:'Orbitron',sans-serif;font-size:1.05em;
+  font-weight:700;color:var(--text);outline:none;letter-spacing:4px;text-align:center;
+  text-transform:uppercase;margin-bottom:7px;transition:all .2s}
+.pin-inp:focus{border-color:var(--blue);box-shadow:0 0 12px rgba(0,240,255,.18)}
+.pin-err{color:var(--pink);font-size:.76em;font-weight:700;margin-bottom:13px;min-height:17px}
+.pin-acts{display:flex;gap:9px}
+.btn-pin-ok{flex:1;padding:13px;font-family:'Orbitron',sans-serif;font-size:.8em;font-weight:700;
+  letter-spacing:1px;background:linear-gradient(135deg,#4f00c8,#0080ff);color:#fff;
+  border:none;border-radius:12px;cursor:pointer;text-transform:uppercase;transition:all .2s;
+  touch-action:manipulation;min-height:46px}
+.btn-pin-ok:active{transform:scale(.97)}
+.btn-pin-no{flex:1;padding:13px;font-family:'Nunito',sans-serif;font-size:.86em;font-weight:700;
+  background:rgba(255,255,255,.04);color:var(--muted);
+  border:1px solid rgba(255,255,255,.1);border-radius:12px;cursor:pointer;transition:all .2s;
+  touch-action:manipulation;min-height:46px}
+.btn-pin-no:active{transform:scale(.97)}
+#bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(6,4,15,.97);border-top:1px solid rgba(0,240,255,.14);
+  display:none;padding:0 4px calc(4px + env(safe-area-inset-bottom))}
+#bnav.vis{display:flex}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;padding:9px 4px 6px;
+  cursor:pointer;transition:all .2s;border-radius:10px;background:none;border:none;
+  color:var(--muted);touch-action:manipulation;min-height:52px}
+.ni.active{color:var(--blue)}
+.ni:active{transform:scale(.92)}
+.ni-ic{font-size:1.2em;margin-bottom:2px;line-height:1}
+.ni-lb{font-size:.58em;font-weight:700;letter-spacing:.5px;text-transform:uppercase}
+#pts{position:fixed;inset:0;pointer-events:none;z-index:200}
+.pt{position:absolute;border-radius:50%;animation:pf var(--d) linear forwards}
+@keyframes pf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+footer{text-align:center;padding:24px 18px 8px;color:rgba(224,216,255,.18);font-size:.67em;letter-spacing:1px;position:relative;z-index:1}
+#s-stats .quiz-bar{border-bottom-color:rgba(255,224,0,.25)}
+.st-quiz-row{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:10px 13px;display:flex;align-items:center;gap:10px}
+.st-quiz-icon{width:34px;height:34px;border-radius:9px;background:rgba(0,240,255,.09);display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-shrink:0}
+.st-quiz-info{flex:1;min-width:0}
+.st-quiz-name{font-size:.82em;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.st-quiz-stars{font-size:.72em;margin-top:1px}
+.st-quiz-pct{font-family:'Orbitron',sans-serif;font-size:.72em;font-weight:700;color:var(--blue);flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="sf"></div>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+<div id="pts"></div>
+
+<!-- LOGIN -->
+<div id="s-login" class="screen active">
+  <div class="lg-logo">🎼</div>
+  <div class="lg-title">Apreciación Musical</div>
+  <div class="lg-sub">Prof. William · Unidad 1</div>
+  <div class="lg-card">
+    <span class="lbl">Tu nombre</span>
+    <input class="inp" id="lg-name" type="text" placeholder="Escribe tu nombre" maxlength="30" autocomplete="off">
+    <span class="lbl">Clave de acceso</span>
+    <input class="inp" id="lg-pass" type="password" placeholder="••••••" maxlength="20" autocomplete="off">
+    <div class="lg-hint">Ingresa la clave que te dio el Prof. William para comenzar tu misión.</div>
+    <button class="btn-lg" id="btn-enter">Entrar a la Misión →</button>
+    <div class="lg-err" id="lg-err">❌ Clave incorrecta. Inténtalo de nuevo.</div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="s-home" class="screen">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">⚡ Prof. William</div>
+      <div class="topbar-user">Bienvenido/a, <b id="uname">Estudiante</b></div>
+    </div>
+    <button class="btn-out" id="btn-out">Salir</button>
+  </div>
+  <div class="home-body">
+    <div class="unit-banner">
+      <div class="unit-lbl">Unidad 1</div>
+      <div class="unit-name">Clasificación y Familias de Instrumentos Musicales</div>
+      <div class="uprog-lbl"><span>Progreso</span><span id="upct">0%</span></div>
+      <div class="uprog-bar"><div class="uprog-fill" id="uprog" style="width:0%"></div></div>
+    </div>
+    <div class="sec-title">🎼 Por agente vibratorio</div>
+    <div class="mat-grid" id="qlist-1"></div>
+    <div class="sec-title">🎯 Repaso general</div>
+    <div class="mat-grid" id="qlist-2"></div>
+    <div class="sec-title">🌎 Música cubana y latinoamericana</div>
+    <div class="mat-grid" id="qlist-3"></div>
+    <div class="sec-title">🎤 Voces y Coros</div>
+    <div class="mat-grid" id="qlist-4"></div>
+    <div class="sec-title">📚 Materiales de apoyo</div>
+    <div class="mat-grid" id="mlist"></div>
+    <footer>Prof. William · Apreciación Musical · v12.0</footer>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="s-quiz" class="screen">
+  <div class="quiz-bar">
+    <button class="btn-back" id="quiz-back">← Volver</button>
+    <span class="quiz-bar-title" id="quiz-bar-title">Quiz</span>
+  </div>
+  <div id="quiz-content">
+    <div class="q-hud">
+      <div class="q-score">⭐ <b id="q-sc">0</b></div>
+      <div class="qprog-wrap">
+        <div class="qprog-lbl"><span id="q-num">1</span> / <span id="q-total">16</span></div>
+        <div class="qprog-bar"><div class="qprog-fill" id="q-pf"></div></div>
+      </div>
+    </div>
+    <div class="q-card" id="q-card">
+      <div class="q-emoji" id="q-emoji"></div>
+      <div class="q-name" id="q-name"></div>
+      <div class="q-type-lbl" id="q-tlbl"></div>
+      <div class="q-question" id="q-question"></div>
+      <div class="opts" id="q-opts"></div>
+      <div class="fb" id="q-fb"></div>
+      <button class="btn-next" id="q-next">Siguiente →</button>
+    </div>
+    <div id="q-result">
+      <div class="res-trophy" id="r-trophy">🏆</div>
+      <div class="res-title" id="r-title"></div>
+      <div class="res-stars" id="r-stars"></div>
+      <div class="res-score" id="r-score"></div>
+      <div class="code-box" id="r-code" style="display:none">
+        <p>🔓 ¡Código para el siguiente quiz!</p>
+        <div class="code-val" id="r-codeval"></div>
+      </div>
+      <div class="res-btns">
+        <button class="btn-pri" id="r-next">🚀 Siguiente Quiz →</button>
+        <button class="btn-sec" id="r-retry">↺ Jugar de nuevo</button>
+        <button class="btn-sec" id="r-home">🏠 Volver al inicio</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIAL -->
+<div id="s-material" class="screen">
+  <div class="quiz-bar" style="border-bottom-color:rgba(255,140,0,.2)">
+    <button class="btn-back" id="mat-back">← Volver</button>
+    <span class="quiz-bar-title" id="mat-bar-title">Material</span>
+  </div>
+  <div class="mat-body">
+    <div class="mat-view-title" id="mv-title"></div>
+    <div class="mat-view-sub" id="mv-sub"></div>
+    <div id="mv-content"></div>
+  </div>
+</div>
+
+<!-- MODAL PIN -->
+<div id="pin-modal">
+  <div class="pin-card">
+    <div class="pin-icon">🔐</div>
+    <div class="pin-title">Contenido bloqueado</div>
+    <div class="pin-sub" id="pin-sub">Ingresa el código del quiz anterior.</div>
+    <input class="pin-inp" id="pin-inp" type="text" maxlength="12" placeholder="CÓDIGO" autocomplete="off">
+    <div class="pin-err" id="pin-err"></div>
+    <div class="pin-acts">
+      <button class="btn-pin-no" id="pin-no">Cancelar</button>
+      <button class="btn-pin-ok" id="pin-ok">Verificar →</button>
+    </div>
+  </div>
+</div>
+
+<nav id="bnav">
+  <button class="ni active" id="ni-home" onclick="navTo('home')">
+    <div class="ni-ic">🏠</div><div class="ni-lb">Inicio</div>
+  </button>
+  <button class="ni" id="ni-install" onclick="pwaInstall()" style="display:none">
+    <div class="ni-ic">⬇️</div><div class="ni-lb">Instalar</div>
+  </button>
+  <button class="ni" id="ni-progress" onclick="navTo('progress')">
+    <div class="ni-ic">📲</div><div class="ni-lb">Enviar</div>
+  </button>
+  <button class="ni" id="ni-help" onclick="navTo('help')">
+    <div class="ni-ic">❓</div><div class="ni-lb">Ayuda</div>
+  </button>
+</nav>
+
+<!-- PANTALLA ESTADÍSTICAS FINALES -->
+<div id="s-stats" class="screen">
+  <div class="quiz-bar" style="border-bottom-color:rgba(255,224,0,.25)">
+    <button class="btn-back" id="stats-home">🏠 Inicio</button>
+    <span class="quiz-bar-title">🏆 Resultados Finales</span>
+  </div>
+  <div id="stats-content" style="flex:1;overflow-y:auto;overflow-x:hidden;padding:18px 14px 40px;max-width:440px;width:100%;margin:0 auto">
+    <div style="text-align:center;margin-bottom:18px">
+      <div id="st-trophy" style="font-size:4em;animation:bo 1s ease infinite">🏆</div>
+      <div id="st-title" style="font-family:'Orbitron',sans-serif;font-size:1.15em;font-weight:900;color:var(--yellow);text-shadow:0 0 18px rgba(255,224,0,.5);margin:8px 0 4px;line-height:1.3"></div>
+      <div id="st-subtitle" style="font-size:.8em;color:var(--muted);margin-bottom:16px"></div>
+      <div style="background:rgba(0,240,255,.07);border:1px solid rgba(0,240,255,.2);border-radius:16px;padding:14px 18px;margin-bottom:16px">
+        <div style="font-size:.62em;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:8px">Puntuación Global</div>
+        <div id="st-total-stars" style="font-size:2em;letter-spacing:4px;margin-bottom:6px"></div>
+        <div style="background:rgba(255,255,255,.07);border-radius:8px;height:10px;overflow:hidden;margin-bottom:6px">
+          <div id="st-bar" style="height:100%;background:linear-gradient(90deg,var(--purple),var(--blue));border-radius:8px;transition:width 1s ease;box-shadow:0 0 8px var(--blue);width:0%"></div>
+        </div>
+        <div id="st-pct" style="font-family:'Orbitron',sans-serif;font-size:1.4em;font-weight:900;color:var(--blue)"></div>
+      </div>
+    </div>
+    <div style="font-size:.62em;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px">📋 Detalle por Quiz <span style="flex:1;height:1px;background:rgba(255,255,255,.07);display:block"></span></div>
+    <div id="st-list" style="display:flex;flex-direction:column;gap:7px;margin-bottom:20px"></div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="btn-pri" id="st-whatsapp" style="width:100%;background:linear-gradient(135deg,#128c3e,#25d366)">📲 Enviar reporte al Prof. William</button>
+      <button class="btn-pri" id="st-restart" style="width:100%">↺ Volver a empezar</button>
+      <button class="btn-sec" id="st-home2" style="width:100%">🏠 Ir al inicio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════
+   APRECIACIÓN MUSICAL · Prof. William · v12.0
+   NEW v11: Q9 revisado (especialista canto coral Cuba)
+            SVG coro · solo:true · motor _qstep dinámico
+            shuffle voces · Q8 Soprano ligera+Bajo-barítono
+   NEW v9:  WhatsApp report · contraste · modo luz
+══════════════════════════════════════════════════════ */
+
+/* ── PROTECCIÓN ─────────────────────────────────── */
+(function(){
+  document.addEventListener('contextmenu',e=>e.preventDefault());
+  document.addEventListener('keydown',e=>{
+    if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&'IJCU'.includes(e.key))||(e.ctrlKey&&e.key==='U'))
+    { e.preventDefault(); return false; }
+  });
+  setInterval(()=>{
+    if(window.screen.width<1024) return;
+    if(window.outerWidth-window.innerWidth>300||window.outerHeight-window.innerHeight>300)
+      document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;background:#06040f;color:#00f0ff;font-family:Orbitron,sans-serif;font-size:1em;text-align:center;padding:30px;line-height:1.8">🔒<br><br>Cierra las herramientas del navegador para continuar.</div>';
+  },1200);
+})();
+
+/* ── SVGs personalizados ────────────────────────── */
+const SVGS = {
+  timpani:`<svg width="72" height="60" viewBox="0 0 72 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="36" cy="20" rx="30" ry="10" fill="#c8960a" stroke="#f0b800" stroke-width="1.8"/>
+    <ellipse cx="36" cy="20" rx="30" ry="10" fill="url(#th)" opacity=".85"/>
+    <defs><radialGradient id="th" cx="40%" cy="35%"><stop offset="0%" stop-color="#fff" stop-opacity=".25"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></radialGradient></defs>
+    <path d="M6 20 Q4 44 14 52 L58 52 Q68 44 66 20" fill="#8a5c10" stroke="#6a3c00" stroke-width="1.5"/>
+    <ellipse cx="36" cy="52" rx="22" ry="6" fill="#6a3800"/>
+    <line x1="36" y1="52" x2="36" y2="60" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="36" cy="20" rx="28" ry="8.5" fill="none" stroke="#f0c840" stroke-width="1" opacity=".5"/>
+    <line x1="60" y1="28" x2="68" y2="22" stroke="#888" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="68" cy="21" r="4" fill="#ccc" stroke="#aaa" stroke-width="1"/>
+    <circle cx="68" cy="21" r="2" fill="#888"/>
+    <circle cx="8" cy="34" r="2.5" fill="#f0b800" opacity=".7"/>
+    <circle cx="64" cy="34" r="2.5" fill="#f0b800" opacity=".7"/></svg>`,
+  platillos:`<svg width="70" height="52" viewBox="0 0 70 52" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="22" cy="28" rx="20" ry="7" fill="#c8960a" stroke="#f0b800" stroke-width="1.5"/>
+    <ellipse cx="22" cy="28" rx="6" ry="2.2" fill="#f0b800" opacity=".6"/>
+    <circle cx="22" cy="28" r="2" fill="#ffe066"/>
+    <line x1="22" y1="21" x2="22" y2="10" stroke="#8a6500" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="48" cy="28" rx="20" ry="7" fill="#c8960a" stroke="#f0b800" stroke-width="1.5"/>
+    <ellipse cx="48" cy="28" rx="6" ry="2.2" fill="#f0b800" opacity=".6"/>
+    <circle cx="48" cy="28" r="2" fill="#ffe066"/>
+    <line x1="48" y1="21" x2="48" y2="10" stroke="#8a6500" stroke-width="2.5" stroke-linecap="round"/>
+    <ellipse cx="16" cy="25" rx="4" ry="1.5" fill="white" opacity=".18" transform="rotate(-10 16 25)"/>
+    <ellipse cx="42" cy="25" rx="4" ry="1.5" fill="white" opacity=".18" transform="rotate(-10 42 25)"/></svg>`,
+  triangulo:`<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M32 8 L58 52 L6 52" stroke="#c0c0ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <line x1="52" y1="38" x2="62" y2="28" stroke="#c0c0ff" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="62" cy="26" r="3" fill="#ffe000"/></svg>`,
+  tumbadora:`<svg width="52" height="72" viewBox="0 0 52 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <ellipse cx="26" cy="12" rx="20" ry="8" fill="#c87040" stroke="#a05020" stroke-width="2"/>
+    <path d="M6 12 Q4 60 14 68 L38 68 Q48 60 46 12" fill="#b86030" stroke="#a05020" stroke-width="2"/>
+    <ellipse cx="26" cy="68" rx="12" ry="4" fill="#804020"/>
+    <ellipse cx="26" cy="12" rx="18" ry="6" fill="#e09060" opacity=".5"/>
+    <ellipse cx="22" cy="10" rx="5" ry="2" fill="white" opacity=".2" transform="rotate(-15 22 10)"/></svg>`,
+  tres:`<svg width="60" height="72" viewBox="0 0 60 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M30 4 Q50 8 54 28 Q56 50 30 68 Q4 50 6 28 Q10 8 30 4Z" fill="#c8a060" stroke="#8a6020" stroke-width="1.5"/>
+    <line x1="30" y1="4" x2="30" y2="68" stroke="#6a4010" stroke-width="1.5"/>
+    <line x1="30" y1="4" x2="30" y2="-4" stroke="#555" stroke-width="3" stroke-linecap="round"/>
+    <rect x="26" y="-8" width="8" height="6" rx="2" fill="#333"/>
+    <line x1="18" y1="36" x2="42" y2="36" stroke="#6a4010" stroke-width="1.2"/>
+    <line x1="18" y1="42" x2="42" y2="42" stroke="#6a4010" stroke-width="1.2"/>
+    <line x1="18" y1="48" x2="42" y2="48" stroke="#6a4010" stroke-width="1.2"/></svg>`,
+  charango:`<svg width="48" height="76" viewBox="0 0 48 76" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 6 Q42 10 44 32 Q44 52 24 70 Q4 52 4 32 Q6 10 24 6Z" fill="#d4a870" stroke="#8a5820" stroke-width="1.5"/>
+    <ellipse cx="24" cy="38" rx="8" ry="10" fill="#6a3810" opacity=".4"/>
+    <line x1="24" y1="6" x2="24" y2="-6" stroke="#555" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="20" y="-10" width="8" height="6" rx="2" fill="#333"/>
+    <line x1="13" y1="40" x2="35" y2="40" stroke="#6a4010" stroke-width="1"/>
+    <line x1="13" y1="44" x2="35" y2="44" stroke="#6a4010" stroke-width="1"/>
+    <line x1="13" y1="48" x2="35" y2="48" stroke="#6a4010" stroke-width="1"/>
+    <line x1="13" y1="52" x2="35" y2="52" stroke="#6a4010" stroke-width="1"/>
+    <line x1="13" y1="56" x2="35" y2="56" stroke="#6a4010" stroke-width="1"/></svg>`,
+  zampoña:`<svg width="70" height="60" viewBox="0 0 70 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="5"  y="10" width="8" height="44" rx="4" fill="#d4a840" stroke="#a07820" stroke-width="1.2"/>
+    <rect x="15" y="14" width="8" height="40" rx="4" fill="#d4a840" stroke="#a07820" stroke-width="1.2"/>
+    <rect x="25" y="18" width="8" height="36" rx="4" fill="#d4a840" stroke="#a07820" stroke-width="1.2"/>
+    <rect x="35" y="22" width="8" height="32" rx="4" fill="#d4a840" stroke="#a07820" stroke-width="1.2"/>
+    <rect x="45" y="26" width="8" height="28" rx="4" fill="#d4a840" stroke="#a07820" stroke-width="1.2"/>
+    <rect x="55" y="30" width="8" height="24" rx="4" fill="#d4a840" stroke="#a07820" stroke-width="1.2"/>
+    <line x1="4" y1="20" x2="64" y2="20" stroke="#7a5010" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="4" y1="28" x2="64" y2="28" stroke="#7a5010" stroke-width="2.5" stroke-linecap="round"/></svg>`,
+  coro:`<svg width="72" height="60" viewBox="0 0 72 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Atril / partitura central -->
+    <rect x="31" y="38" width="10" height="3" rx="1" fill="#a07060"/>
+    <rect x="34" y="41" width="4" height="10" rx="1" fill="#a07060"/>
+    <rect x="31" y="37" width="10" height="6" rx="1.5" fill="#f0e8d0" stroke="#c8a878" stroke-width=".8"/>
+    <line x1="33" y1="39.5" x2="41" y2="39.5" stroke="#8a6840" stroke-width=".6"/>
+    <line x1="33" y1="41" x2="41" y2="41" stroke="#8a6840" stroke-width=".6"/>
+    <!-- 5 cantantes en arco -->
+    <!-- Cantante izquierda extremo -->
+    <circle cx="8" cy="22" r="5" fill="#00c8d8" opacity=".85"/>
+    <rect x="5" y="27" width="6" height="9" rx="2" fill="#0088a8" opacity=".85"/>
+    <path d="M5 33 Q8 36 11 33" stroke="#00c8d8" stroke-width=".8" fill="none"/>
+    <!-- Cantante izquierda -->
+    <circle cx="22" cy="17" r="5" fill="#bf00ff" opacity=".85"/>
+    <rect x="19" y="22" width="6" height="9" rx="2" fill="#8800cc" opacity=".85"/>
+    <path d="M19 28 Q22 31 25 28" stroke="#bf00ff" stroke-width=".8" fill="none"/>
+    <!-- Cantante centro -->
+    <circle cx="36" cy="14" r="5.5" fill="#00f0ff" opacity=".9"/>
+    <rect x="33" y="19.5" width="6" height="10" rx="2" fill="#0088c8" opacity=".9"/>
+    <path d="M33 26 Q36 29.5 39 26" stroke="#00f0ff" stroke-width=".8" fill="none"/>
+    <!-- Cantante derecha -->
+    <circle cx="50" cy="17" r="5" fill="#bf00ff" opacity=".85"/>
+    <rect x="47" y="22" width="6" height="9" rx="2" fill="#8800cc" opacity=".85"/>
+    <path d="M47 28 Q50 31 53 28" stroke="#bf00ff" stroke-width=".8" fill="none"/>
+    <!-- Cantante derecha extremo -->
+    <circle cx="64" cy="22" r="5" fill="#00c8d8" opacity=".85"/>
+    <rect x="61" y="27" width="6" height="9" rx="2" fill="#0088a8" opacity=".85"/>
+    <path d="M61 33 Q64 36 67 33" stroke="#00c8d8" stroke-width=".8" fill="none"/>
+    <!-- Notas musicales flotando -->
+    <text x="3"  y="15" font-size="7" fill="#ffe000" opacity=".7">♪</text>
+    <text x="60" y="13" font-size="7" fill="#ffe000" opacity=".7">♫</text>
+    <text x="30" y="8"  font-size="6" fill="#ffffff" opacity=".5">♩</text></svg>`
+};
+
+/* ════════════════════════════════════════════════════
+   DATOS — QUIZZES 1-7  (motor de 2 preguntas por ítem)
+   Cada ítem: n=nombre, em=emoji/SVG, svgKey=clave SVG,
+   o=clasificación agente vibratorio, oe=explicación o,
+   f=familia, fe=explicación f
+   DATOS CURISOS: campo "tip" mostrado al inicio del quiz
+════════════════════════════════════════════════════ */
+
+/* ── Q1: CORDÓFONOS ── dato curioso: el violín */
+const Q1 = {
+  tip: '🎻 ¿Sabías que un arco de violín usa entre 150 y 200 crines de cola de caballo? ¡Y cada uno puede tocar hasta 4 cuerdas a la vez!',
+  items: [
+    { n:'Violín', em:'🎻',
+      o:'Cordófono', oe:'Las cuerdas vibran frotadas por el arco → Cordófono.',
+      f:'Cuerdas frotadas', fe:'El arco roza las cuerdas directamente → Cuerdas frotadas. Es la voz soprano de la familia.' },
+    { n:'Viola', em:'🎻',
+      o:'Cordófono', oe:'Cuerdas frotadas con arco, igual que el violín pero mayor → Cordófono.',
+      f:'Cuerdas frotadas', fe:'Arco frota cuerdas → Cuerdas frotadas. Voz de contralto de la familia.' },
+    { n:'Violonchelo', em:'🎻',
+      o:'Cordófono', oe:'Las cuerdas vibran al ser frotadas por el arco → Cordófono.',
+      f:'Cuerdas frotadas', fe:'Arco sobre cuerdas → Cuerdas frotadas. El tenor de la familia de cuerdas.' },
+    { n:'Contrabajo', em:'🎻',
+      o:'Cordófono', oe:'Cuerdas frotadas con arco; el más grave de la familia → Cordófono.',
+      f:'Cuerdas frotadas', fe:'Arco frota cuerdas → Cuerdas frotadas. Bajo profundo de la orquesta.' },
+    { n:'Arpa', em:'🎵',
+      o:'Cordófono', oe:'Las cuerdas vibran al ser pulsadas con los dedos → Cordófono.',
+      f:'Cuerdas pulsadas', fe:'Los dedos pulsan directamente las cuerdas → Cuerdas pulsadas.' },
+    { n:'Guitarra', em:'🎸',
+      o:'Cordófono', oe:'Las cuerdas vibran al pulsarse con dedos o púa → Cordófono.',
+      f:'Cuerdas pulsadas', fe:'Dedos o púa pulsan las cuerdas → Cuerdas pulsadas.' },
+    { n:'Piano', em:'🎹',
+      o:'Cordófono', oe:'Martillos de fieltro golpean las cuerdas internas al presionar teclas → Cordófono.',
+      f:'Cuerdas percutidas', fe:'Las cuerdas son percutidas por martillos → Cuerdas percutidas.' },
+    { n:'Clavicémbalo', em:'🎹',
+      o:'Cordófono', oe:'Plectros de pluma o plástico pulsan las cuerdas al presionar teclas → Cordófono.',
+      f:'Cuerdas pulsadas', fe:'Los plectros pulsan las cuerdas mecánicamente → Cuerdas pulsadas. Antecesor del piano.' }
+  ]
+};
+
+/* ── Q2: AERÓFONOS ── dato curioso: el oboe */
+const Q2 = {
+  tip: '🎷 ¿Sabías que el oboe es el instrumento que da el La para que todos los músicos de la orquesta afinen? ¡Es el árbitro del sonido!',
+  items: [
+    { n:'Flautín', em:'🪈',
+      o:'Aerófono', oe:'El aire vibra en el tubo al soplar por la embocadura → Aerófono.',
+      f:'Viento madera', fe:'Mecanismo de bisel, familia histórica de madera → Viento madera. El más agudo de la orquesta.' },
+    { n:'Flauta traversa', em:'🪈',
+      o:'Aerófono', oe:'El aire vibra dentro del tubo metálico → Aerófono.',
+      f:'Viento madera', fe:'Aunque es de metal, pertenece a Viento madera por su mecanismo y origen histórico.' },
+    { n:'Oboe', em:'🎵',
+      o:'Aerófono', oe:'Una lengüeta doble de caña vibra con el aire del músico → Aerófono.',
+      f:'Viento madera', fe:'Lengüeta doble de caña → Viento madera. Da el La de afinación a la orquesta.' },
+    { n:'Clarinete', em:'🎵',
+      o:'Aerófono', oe:'Una lengüeta simple de caña vibra con el aire soplado → Aerófono.',
+      f:'Viento madera', fe:'Lengüeta simple de caña → Viento madera. Tiene el registro más amplio de viento.' },
+    { n:'Fagot', em:'🎵',
+      o:'Aerófono', oe:'Lengüeta doble que vibra al soplar; gran tubo plegado → Aerófono.',
+      f:'Viento madera', fe:'Lengüeta doble de caña → Viento madera. El más grave de la familia de madera.' },
+    { n:'Saxofón', em:'🎷',
+      o:'Aerófono', oe:'Lengüeta simple de caña dentro de un tubo metálico cónico → Aerófono.',
+      f:'Viento madera', fe:'Usa lengüeta de caña como el clarinete → Viento madera, aunque su cuerpo sea metálico.' },
+    { n:'Trompeta', em:'🎺',
+      o:'Aerófono', oe:'Los labios del músico vibran como lengüeta en la boquilla → Aerófono.',
+      f:'Viento metal', fe:'Tubo metálico con pistones; labios como fuente vibrante → Viento metal.' },
+    { n:'Trompa (Corno francés)', em:'🎺',
+      o:'Aerófono', oe:'Los labios vibran en la boquilla; el largo tubo enroscado amplifica el sonido → Aerófono.',
+      f:'Viento metal', fe:'Gran tubo enroscado de metal con válvulas rotativas → Viento metal. Puente tímbrico entre madera y metal.' },
+    { n:'Trombón', em:'🎺',
+      o:'Aerófono', oe:'Los labios vibran; la vara corredera varía la longitud del tubo → Aerófono.',
+      f:'Viento metal', fe:'Tubo metálico con vara corredera → Viento metal. Único viento sin pistones ni llaves.' },
+    { n:'Tuba', em:'🎺',
+      o:'Aerófono', oe:'Los labios vibran en el gran tubo cónico de metal → Aerófono.',
+      f:'Viento metal', fe:'Gran tubo metálico con pistones → Viento metal. El más grave de todos los vientos.' }
+  ]
+};
+
+/* ── Q3: MEMBRANÓFONOS ── dato curioso: el tímpani */
+const Q3 = {
+  tip: '🥁 ¿Sabías que los tímpani son los únicos tambores de la orquesta que pueden afinarse a notas musicales concretas? ¡El timbalero cambia de nota con el pie!',
+  items: [
+    { n:'Tímpani', em:'SVG', svgKey:'timpani',
+      o:'Membranófono', oe:'Una membrana tensa vibra al ser golpeada con mazas → Membranófono.',
+      f:'Percusión determinada', fe:'Se afina con pedal a notas concretas → Percusión de afinación determinada.' },
+    { n:'Bombo', em:'🥁',
+      o:'Membranófono', oe:'Gran membrana de piel percutida con mazo acolchado → Membranófono.',
+      f:'Percusión indeterminada', fe:'Sonido grave sin nota musical definida → Percusión indeterminada.' },
+    { n:'Caja', em:'🥁',
+      o:'Membranófono', oe:'Dos membranas tensas; la inferior lleva bordones metálicos que vibran → Membranófono.',
+      f:'Percusión indeterminada', fe:'Sonido seco sin altura fija → Percusión indeterminada.' },
+    { n:'Redoblante', em:'🥁',
+      o:'Membranófono', oe:'Membrana percutida con baquetas; versión militar y de marcha de la caja → Membranófono.',
+      f:'Percusión indeterminada', fe:'Sin nota fija → Percusión indeterminada. Más profundo que la caja orquestal; esencial en bandas militares y de marcha.' }
+  ]
+};
+
+/* ── Q4: IDIÓFONOS ── dato curioso: el vibráfono */
+const Q4 = {
+  tip: '🎶 ¿Sabías que el vibráfono tiene un pequeño motor eléctrico que hace girar unas aspas? ¡Ese giro crea el efecto "vibrato" que da nombre al instrumento!',
+  items: [
+    { n:'Xilófono', em:'🎶',
+      o:'Idiófono', oe:'Las propias barras de madera vibran al ser percutidas → Idiófono.',
+      f:'Percusión determinada', fe:'Barras de madera afinadas en escala → Percusión de afinación determinada.' },
+    { n:'Marimba', em:'🎶',
+      o:'Idiófono', oe:'Barras de madera con resonadores tubulares que vibran por sí mismas → Idiófono.',
+      f:'Percusión determinada', fe:'Barras afinadas con resonadores bajo cada barra → Percusión determinada. Sonido más cálido que el xilófono.' },
+    { n:'Vibráfono', em:'🎶',
+      o:'Idiófono', oe:'Barras de metal que vibran al percutirse; motor amplía el efecto → Idiófono.',
+      f:'Percusión determinada', fe:'Barras metálicas afinadas con motor vibrante → Percusión determinada.' },
+    { n:'Platillos', em:'SVG', svgKey:'platillos',
+      o:'Idiófono', oe:'Los propios platillos de aleación metálica vibran al chocar entre sí → Idiófono.',
+      f:'Percusión indeterminada', fe:'Sonido de impacto sin altura musical definida → Percusión indeterminada.' },
+    { n:'Triángulo', em:'SVG', svgKey:'triangulo',
+      o:'Idiófono', oe:'La propia barra de acero vibra al ser golpeada con una varilla → Idiófono.',
+      f:'Percusión indeterminada', fe:'Sonido brillante metálico sin nota fija → Percusión indeterminada.' }
+  ]
+};
+
+/* ── Q5: REPASO GENERAL I ── */
+const Q5 = {
+  tip: '🎯 ¡Repaso General! En este quiz encontrarás instrumentos de las 4 familias: Cordófonos, Aerófonos, Membranófonos e Idiófonos. ¡Demuestra todo lo que sabes!',
+  items: [
+    { n:'Violín', em:'🎻',
+      o:'Cordófono', oe:'Cuerdas frotadas con arco → Cordófono.',
+      f:'Cuerdas frotadas', fe:'Arco frota cuerdas → Cuerdas frotadas.' },
+    { n:'Guitarra', em:'🎸',
+      o:'Cordófono', oe:'Cuerdas pulsadas con dedos o púa → Cordófono.',
+      f:'Cuerdas pulsadas', fe:'Dedos o púa pulsan cuerdas → Cuerdas pulsadas.' },
+    { n:'Flauta traversa', em:'🪈',
+      o:'Aerófono', oe:'Aire vibra en el tubo al soplar → Aerófono.',
+      f:'Viento madera', fe:'Mecanismo de bisel, familia histórica de madera → Viento madera.' },
+    { n:'Trompeta', em:'🎺',
+      o:'Aerófono', oe:'Labios vibran enviando aire al tubo → Aerófono.',
+      f:'Viento metal', fe:'Tubo metálico con pistones → Viento metal.' },
+    { n:'Piano', em:'🎹',
+      o:'Cordófono', oe:'Martillos percuten cuerdas internas al pulsar teclas → Cordófono.',
+      f:'Cuerdas percutidas', fe:'Cuerdas golpeadas por martillos → Cuerdas percutidas.' },
+    { n:'Xilófono', em:'🎶',
+      o:'Idiófono', oe:'Las propias barras de madera vibran → Idiófono.',
+      f:'Percusión determinada', fe:'Barras de madera afinadas → Percusión determinada.' },
+    { n:'Tímpani', em:'SVG', svgKey:'timpani',
+      o:'Membranófono', oe:'Membrana tensa percutida → Membranófono.',
+      f:'Percusión determinada', fe:'Se afina con pedal → Percusión determinada.' },
+    { n:'Platillos', em:'SVG', svgKey:'platillos',
+      o:'Idiófono', oe:'Platillos de metal vibran al chocar → Idiófono.',
+      f:'Percusión indeterminada', fe:'Sin nota musical fija → Percusión indeterminada.' }
+  ]
+};
+
+/* ── Q6: REPASO GENERAL II ── */
+const Q6 = {
+  tip: '🎯 ¡Segundo Repaso! Aquí encontrarás 8 instrumentos distintos a los del Quiz 5. Algunos te sorprenderán: ¿a qué familia pertenece el saxofón?',
+  items: [
+    { n:'Viola', em:'🎻',
+      o:'Cordófono', oe:'Cuerdas frotadas con arco, entre el violín y el cello → Cordófono.',
+      f:'Cuerdas frotadas', fe:'Arco sobre cuerdas → Cuerdas frotadas.' },
+    { n:'Arpa', em:'🎵',
+      o:'Cordófono', oe:'Cuerdas largas pulsadas directamente con los dedos → Cordófono.',
+      f:'Cuerdas pulsadas', fe:'Dedos pulsan cuerdas largas → Cuerdas pulsadas.' },
+    { n:'Clavicémbalo', em:'🎹',
+      o:'Cordófono', oe:'Plectros mecánicos pulsan cuerdas al presionar teclas → Cordófono.',
+      f:'Cuerdas pulsadas', fe:'Cuerdas pulsadas mecánicamente → Cuerdas pulsadas. Antecesor del piano.' },
+    { n:'Oboe', em:'🎵',
+      o:'Aerófono', oe:'Lengüeta doble de caña vibra al soplar → Aerófono.',
+      f:'Viento madera', fe:'Lengüeta doble → Viento madera. Da el La a la orquesta.' },
+    { n:'Saxofón', em:'🎷',
+      o:'Aerófono', oe:'Lengüeta simple de caña en tubo metálico cónico → Aerófono.',
+      f:'Viento madera', fe:'Usa lengüeta de caña → Viento madera, aunque parezca de metal.' },
+    { n:'Tuba', em:'🎺',
+      o:'Aerófono', oe:'Labios vibran en el gran tubo de metal → Aerófono.',
+      f:'Viento metal', fe:'Gran tubo metálico → Viento metal. El más grave.' },
+    { n:'Marimba', em:'🎶',
+      o:'Idiófono', oe:'Barras de madera vibran solas al ser percutidas → Idiófono.',
+      f:'Percusión determinada', fe:'Barras afinadas con resonadores → Percusión determinada.' },
+    { n:'Bombo', em:'🥁',
+      o:'Membranófono', oe:'Gran membrana percutida con mazo acolchado → Membranófono.',
+      f:'Percusión indeterminada', fe:'Sin nota musical fija → Percusión indeterminada.' }
+  ]
+};
+
+/* ── Q7: CUBA Y LATINOAMÉRICA ── dato curioso: las claves */
+const Q7 = {
+  tip: '🌎 ¿Sabías que las claves cubanas marcan el "clave", un patrón rítmico de 3-2 o 2-3 que es el "corazón" de la música cubana? ¡Todo lo demás gira alrededor de ese ritmo!',
+  items: [
+    { n:'Tres cubano', em:'SVG', svgKey:'tres',
+      o:'Cordófono', oe:'Tres pares de cuerdas pulsadas con dedos o púa → Cordófono.',
+      f:'Cuerdas pulsadas', fe:'Cuerdas pulsadas → Cuerdas pulsadas. Instrumento símbolo del son cubano.' },
+    { n:'Tumbadora', em:'SVG', svgKey:'tumbadora',
+      o:'Membranófono', oe:'Membrana en cuerpo cónico de madera, percutida con las manos → Membranófono.',
+      f:'Percusión indeterminada', fe:'Tambor afrocubano sin nota musical fija → Percusión indeterminada.' },
+    { n:'Bongó', em:'🥁',
+      o:'Membranófono', oe:'Par de pequeñas membranas unidas, percutidas con los dedos → Membranófono.',
+      f:'Percusión indeterminada', fe:'Dos parches sin afinación fija → Percusión indeterminada.' },
+    { n:'Claves', em:'🎵',
+      o:'Idiófono', oe:'Dos cilindros de madera dura vibran al golpearse entre sí → Idiófono.',
+      f:'Percusión indeterminada', fe:'La propia madera vibra → Idiófono. Sin nota definida. Marcan el "clave" del son.' },
+    { n:'Maracas', em:'🎵',
+      o:'Idiófono', oe:'Semillas o perdigones que vibran dentro del recipiente → Idiófono.',
+      f:'Percusión indeterminada', fe:'Vibración de elementos internos → Idiófono. Sin nota definida.' },
+    { n:'Charango', em:'SVG', svgKey:'charango',
+      o:'Cordófono', oe:'Cinco pares de cuerdas pulsadas con dedos o púa → Cordófono.',
+      f:'Cuerdas pulsadas', fe:'Cuerdas pulsadas → Cuerdas pulsadas. Instrumento de los Andes (Bolivia, Perú, Argentina).' },
+    { n:'Zampoña', em:'SVG', svgKey:'zampoña',
+      o:'Aerófono', oe:'El aire vibra dentro de los tubos de caña al soplar → Aerófono.',
+      f:'Viento madera', fe:'Tubos de caña abiertos → Viento madera. Flauta de pan de los Andes.' },
+    { n:'Bombo legüero', em:'🥁',
+      o:'Membranófono', oe:'Gran membrana de cuero percutida con maza de madera → Membranófono.',
+      f:'Percusión indeterminada', fe:'Parche sin afinación definida → Percusión indeterminada. Símbolo del folclore argentino.' }
+  ]
+};
+
+/* ════════════════════════════════════════════════════
+   DATOS — QUIZZES 8 y 9
+   Motor de 1 pregunta por ítem, 3 opciones
+   Campos: n=nombre, em=emoji, cat=categoría,
+   q1/a1/e1 = pregunta 1 / respuesta 1 / explicación 1
+   q2/a2/e2 = pregunta 2 / respuesta 2 / explicación 2
+   Opciones: ops1 (3 opciones para q1), ops2 (3 para q2)
+════════════════════════════════════════════════════ */
+
+const Q8 = {
+  tip: '🎤 ¿Sabías que la voz humana es el único instrumento que forma parte del cuerpo? Las cuerdas vocales (o pliegues vocales) miden apenas 1,5 cm en una mujer y unos 2 cm en un hombre. Una soprano puede vibrarlas ¡más de 1.000 veces por segundo para alcanzar sus notas más agudas!',
+  items: [
+    { n:'Soprano', em:'🎤',
+      q1:'¿Qué tipo de voz es la Soprano?',
+      ops1:['Voz femenina','Voz masculina','Voz infantil'],
+      a1:'Voz femenina',
+      e1:'La Soprano es voz femenina. Es la más aguda de todas las voces humanas.',
+      q2:'¿En qué personajes de ópera suele cantar la Soprano?',
+      ops2:['Heroínas y princesas','Reyes y sabios','Madres y brujas'],
+      a2:'Heroínas y princesas',
+      e2:'La Soprano suele interpretar protagonistas femeninas, heroínas y princesas (p. ej. Violetta en La Traviata).' },
+    { n:'Mezzosoprano', em:'🎤',
+      q1:'¿Qué tipo de voz es la Mezzosoprano?',
+      ops1:['Voz femenina','Voz masculina','Voz infantil'],
+      a1:'Voz femenina',
+      e1:'La Mezzosoprano es voz femenina, de registro medio: más grave que la soprano y más aguda que la contralto.',
+      q2:'¿Qué registro ocupa la Mezzosoprano?',
+      ops2:['Registro agudo','Registro medio','Registro grave'],
+      a2:'Registro medio',
+      e2:'La Mezzosoprano es la voz femenina media: entre Soprano (aguda) y Contralto (grave).' },
+    { n:'Contralto', em:'🎤',
+      q1:'¿Qué tipo de voz es la Contralto?',
+      ops1:['Voz femenina','Voz masculina','Voz infantil'],
+      a1:'Voz femenina',
+      e1:'La Contralto es voz femenina. Es la más grave y oscura de las voces femeninas.',
+      q2:'¿Qué personajes suele interpretar la Contralto?',
+      ops2:['Heroínas jóvenes','Madres, brujas o figuras misteriosas','Protagonistas enamorados'],
+      a2:'Madres, brujas o figuras misteriosas',
+      e2:'La Contralto, por su timbre oscuro y grave, suele interpretar madres, magas, brujas o personajes misteriosos.' },
+    { n:'Tenor', em:'🎤',
+      q1:'¿Qué tipo de voz es el Tenor?',
+      ops1:['Voz masculina','Voz femenina','Voz infantil'],
+      a1:'Voz masculina',
+      e1:'El Tenor es voz masculina. Es la más aguda de las voces masculinas.',
+      q2:'¿Qué personajes suele cantar el Tenor?',
+      ops2:['Protagonistas enamorados y héroes jóvenes','Reyes ancianos y sabios','Villanos y traidores'],
+      a2:'Protagonistas enamorados y héroes jóvenes',
+      e2:'El Tenor es el "galán" de la ópera: protagonistas, héroes jóvenes y amantes (p. ej. Rodolfo en La Bohème).' },
+    { n:'Barítono', em:'🎤',
+      q1:'¿Qué tipo de voz es el Barítono?',
+      ops1:['Voz masculina','Voz femenina','Voz infantil'],
+      a1:'Voz masculina',
+      e1:'El Barítono es voz masculina, de registro medio: entre Tenor y Bajo.',
+      q2:'¿Qué registro ocupa el Barítono?',
+      ops2:['Registro agudo','Registro grave','Registro medio'],
+      a2:'Registro medio',
+      e2:'El Barítono es la voz masculina media, la más común entre los hombres. Suele interpretar personajes ambiguos o antagonistas nobles.' },
+    { n:'Bajo', em:'🎤',
+      q1:'¿Qué tipo de voz es el Bajo?',
+      ops1:['Voz masculina','Voz femenina','Voz infantil'],
+      a1:'Voz masculina',
+      e1:'El Bajo es voz masculina. Es la más grave y profunda de todas las voces humanas.',
+      q2:'¿Qué personajes suele cantar el Bajo?',
+      ops2:['Héroes jóvenes y enamorados','Reyes, sabios y figuras de autoridad','Heroínas jóvenes'],
+      a2:'Reyes, sabios y figuras de autoridad',
+      e2:'El Bajo, por su timbre grave y solemne, suele encarnar reyes, dioses, sacerdotes y figuras paternales (p. ej. el Rey Felipe en Don Carlo).' },
+    { n:'Contratenor', em:'🎤',
+      q1:'¿Qué tipo de voz es el Contratenor?',
+      ops1:['Voz masculina','Voz femenina','Voz infantil'],
+      a1:'Voz masculina',
+      e1:'El Contratenor es voz masculina que usa el registro de falsete para cantar en tesitura de contralto o mezzosoprano.',
+      q2:'¿Cómo produce el Contratenor su registro tan agudo?',
+      ops2:['Usando el falsete (voz de cabeza)','Inhalando el aire al cantar','Con técnica de vibrato extremo'],
+      a2:'Usando el falsete (voz de cabeza)',
+      e2:'El Contratenor domina el falsete o "voz de cabeza", lo que le permite cantar roles escritos originalmente para castrati en el Barroco.' },
+    { n:'Voz blanca (infantil)', em:'🎤',
+      q1:'¿Cómo se llaman las voces de los niños antes del cambio de voz?',
+      ops1:['Voces blancas o infantiles','Voces oscuras','Voces de falsete'],
+      a1:'Voces blancas o infantiles',
+      e1:'Las voces blancas o infantiles son las de niños y niñas antes de la muda de voz. Son puras, brillantes y sin el "peso" de la voz adulta.',
+      q2:'¿Cuál es la característica principal de las voces blancas?',
+      ops2:['Timbre oscuro y grave','Timbre puro, brillante y sin vibrato adulto','Registro muy grave'],
+      a2:'Timbre puro, brillante y sin vibrato adulto',
+      e2:'Las voces blancas se caracterizan por su timbre cristalino y puro, sin vibrato marcado. Se usan en coros infantiles y en roles de ópera como Paje o Genio.' },
+    { n:'Soprano ligera', em:'🎤', solo:true,
+      q1:'La Soprano ligera se caracteriza por:',
+      ops1:['Voz muy grave y oscura','Voz ágil, brillante y con gran coloratura','Voz potente de registro medio'],
+      a1:'Voz ágil, brillante y con gran coloratura',
+      e1:'La Soprano ligera domina la coloratura: pasajes rápidos, trinos y notas sobreagudas con gran facilidad y brillo.' },
+    { n:'Bajo-barítono', em:'🎤', solo:true,
+      q1:'El Bajo-barítono es una voz que combina:',
+      ops1:['Lo grave del Bajo con lo medio del Barítono','Lo agudo del Tenor con lo medio del Barítono','Lo grave de la Contralto con lo medio de la Mezzosoprano'],
+      a1:'Lo grave del Bajo con lo medio del Barítono',
+      e1:'El Bajo-barítono tiene la oscuridad del Bajo pero con la agilidad y extensión hacia el registro medio del Barítono.' },
+    { n:'Muta de voz', em:'🎤',
+      q1:'¿Qué es la "muda" o "muta de voz" en los chicos?',
+      ops1:['Un tipo de coro especial','El cambio de voz en la pubertad','Una técnica de canto para agudos'],
+      a1:'El cambio de voz en la pubertad',
+      e1:'La muda de voz ocurre durante la pubertad: la laringe crece, las cuerdas vocales se alargan y la voz desciende una octava en los varones.',
+      q2:'¿Cómo afecta la muda de voz al registro del varón?',
+      ops2:['La voz sube una octava','La voz baja aproximadamente una octava','La voz no cambia de registro'],
+      a2:'La voz baja aproximadamente una octava',
+      e2:'En los varones, la muda provoca un descenso de aproximadamente una octava: lo que era voz blanca aguda se convierte en voz de tenor, barítono o bajo.' },
+    { n:'Tesitura vocal', em:'🎤',
+      q1:'¿Qué significa "tesitura" en el canto?',
+      ops1:['La velocidad con que canta una voz','El rango de notas donde una voz se siente cómoda y suena mejor','El volumen máximo de una voz'],
+      a1:'El rango de notas donde una voz se siente cómoda y suena mejor',
+      e1:'La tesitura es la zona de la escala donde una voz funciona con mayor comodidad, calidad y belleza de timbre. No es el rango total, sino el rango óptimo.',
+      q2:'¿Cuál de estas voces tiene la tesitura más aguda?',
+      ops2:['Bajo','Barítono','Soprano'],
+      a2:'Soprano',
+      e2:'La Soprano tiene la tesitura más aguda entre las voces humanas clasificadas. Su rango óptimo abarca del Do central hacia el Do sobreagudo y más allá.' }
+  ]
+};
+
+const Q9 = {
+  tip: '🎶 ¿Sabías que el coro más grande del mundo reunió a más de 121.000 cantantes en India en 2011? Aunque la mayoría de los coros van de 12 voces (cámara) hasta 120 (sinfónico).',
+  items: [
+    { n:'Coro mixto', em:'SVG', svgKey:'coro', solo:true,
+      q1:'¿Qué tipo de voces forman el coro mixto?',
+      ops1:['Solo voces femeninas','Solo voces masculinas','Voces femeninas y masculinas'],
+      a1:'Voces femeninas y masculinas',
+      e1:'El coro mixto reúne las cuatro cuerdas vocales: Soprano, Contralto, Tenor y Bajo (SATB). Es la formación más completa y habitual.' },
+    { n:'Coro femenino', em:'SVG', svgKey:'coro', solo:true,
+      q1:'¿De qué voces se compone el coro de voces femeninas?',
+      ops1:['Voces femeninas que han completado su desarrollo vocal','Solo voces de hombres','Voces de mujeres, niños y hombres'],
+      a1:'Voces femeninas que han completado su desarrollo vocal',
+      e1:'El coro femenino agrupa voces femeninas con desarrollo vocal completo. No debe confundirse con el coro infantil, que reúne voces blancas.' },
+    { n:'Coro masculino', em:'SVG', svgKey:'coro', solo:true,
+      q1:'¿De qué voces se compone el coro masculino?',
+      ops1:['Solo voces de hombres','Solo voces femeninas','Mezcla de todos los tipos'],
+      a1:'Solo voces de hombres',
+      e1:'El coro masculino agrupa exclusivamente voces de hombre: Tenor I, Tenor II, Barítono y Bajo (TTBB).' },
+    { n:'Coro infantil', em:'SVG', svgKey:'coro',
+      q1:'El término "coro de voces blancas" se refiere correctamente a:',
+      ops1:['Un coro de mujeres que visten de blanco','Agrupaciones formadas por voces infantiles (niños y niñas antes de la mutación vocal)','Un coro que solo canta música sacra antigua'],
+      a1:'Agrupaciones formadas por voces infantiles (niños y niñas antes de la mutación vocal)',
+      e1:'Las "voces blancas" son exclusivamente voces de niños y niñas antes de la muda vocal. El nombre alude a su timbre cristalino y puro, no al color de la ropa ni al repertorio.',
+      q2:'¿Cómo se clasifican las voces en el coro infantil?',
+      ops2:['En Soprano, Mezzosoprano y Contralto','En 1ra, 2da y 3ra voz','En Tenor, Barítono y Bajo'],
+      a2:'En 1ra, 2da y 3ra voz',
+      e2:'En el coro infantil las voces se clasifican en 1ra, 2da y 3ra voz según la tesitura, sin distinción de sexo. La 1ra voz lleva la melodía principal en el registro más agudo.' },
+    { n:'Voces graves en la música cubana', em:'SVG', svgKey:'coro', solo:true,
+      q1:'En el repertorio popular cubano, ¿qué función suelen cumplir las voces de Bajos y Contraltos?',
+      ops1:['Llevar siempre la melodía principal','Imitar la función rítmica y armónica de instrumentos como el contrabajo o la tumba (tumbao)','Mantener solo una nota larga (pedal)'],
+      a1:'Imitar la función rítmica y armónica de instrumentos como el contrabajo o la tumba (tumbao)',
+      e1:'En la música popular cubana, las voces graves (Bajos y Contraltos) frecuentemente asumen la función del tumbao: el patrón rítmico-armónico que en la orquesta llevan el contrabajo y la tumbadora.' },
+    { n:'Coro de cámara', em:'SVG', svgKey:'coro',
+      q1:'¿Cuántos cantantes integran aproximadamente un coro de cámara?',
+      ops1:['Entre 12 y 24 cantantes','Entre 80 y 120 cantantes','Más de 200 cantantes'],
+      a1:'Entre 12 y 24 cantantes',
+      e1:'El coro de cámara es un conjunto vocal pequeño (12-24 voces) de alta exigencia técnica. Su reducido tamaño exige gran precisión individual.',
+      q2:'¿Para qué tipo de música es más adecuado el coro de cámara?',
+      ops2:['Grandes obras sinfónico-corales en estadios','Música de alta precisión técnica en espacios íntimos','Himnos y cánticos de fútbol'],
+      a2:'Música de alta precisión técnica en espacios íntimos',
+      e2:'El coro de cámara es ideal para repertorio renacentista, barroco y contemporáneo que requiere gran limpieza armónica y control dinámico en salas pequeñas.' },
+    { n:'A cappella', em:'SVG', svgKey:'coro', solo:true,
+      q1:'¿Qué significa cantar "a cappella"?',
+      ops1:['Cantar muy suavemente','Cantar sin acompañamiento de instrumentos','Cantar de memoria sin partitura'],
+      a1:'Cantar sin acompañamiento de instrumentos',
+      e1:'"A cappella" (del italiano: "a la manera de la capilla") significa cantar exclusivamente con las voces, sin ningún instrumento que acompañe.' },
+    { n:'Coro gospel', em:'SVG', svgKey:'coro',
+      q1:'¿De qué tradición musical proviene el coro gospel?',
+      ops1:['Música clásica europea del siglo XVIII','Tradición espiritual afroamericana','Música folclórica andina'],
+      a1:'Tradición espiritual afroamericana',
+      e1:'El coro gospel nació en las iglesias afroamericanas de EE.UU., fusionando los espirituales de esclavos con el ritmo y la expresividad del blues y el soul.',
+      q2:'¿Qué característica expresiva distingue al coro gospel?',
+      ops2:['Gran contención emocional y austeridad','Improvisación, espiritualidad y expresividad desbordante','Perfección técnica sin emoción visible'],
+      a2:'Improvisación, espiritualidad y expresividad desbordante',
+      e2:'El coro gospel se caracteriza por la intensidad emocional, los solos improvisados, la llamada y respuesta entre solista y coro, y una energía corporal y espiritual visible.' },
+    { n:'El Director de Coro', em:'SVG', svgKey:'coro', solo:true,
+      q1:'¿Cuál es la función principal del director de coro?',
+      ops1:['Tocar el piano como acompañamiento','Guiar el tempo, la dinámica y las entradas de cada voz','Elegir los vestidos del coro'],
+      a1:'Guiar el tempo, la dinámica y las entradas de cada voz',
+      e1:'El director de coro coordina el conjunto: marca el tiempo con las manos, indica matices (forte/piano), señala entradas y moldea la interpretación artística.' },
+    { n:'Unísono coral', em:'SVG', svgKey:'coro',
+      q1:'¿Qué significa cantar "al unísono" en un coro?',
+      ops1:['Cada voz canta una nota diferente (armonía)','Todas las voces cantan la misma melodía a la misma altura','Solo canta el solista'],
+      a1:'Todas las voces cantan la misma melodía a la misma altura',
+      e1:'El unísono coral ocurre cuando todos los cantantes entonan exactamente la misma nota y melodía. Es el punto de máxima unidad sonora del coro.',
+      q2:'¿Cuándo suele usar el coro el unísono?',
+      ops2:['Solo en música contemporánea','En momentos de gran intensidad o para subrayar una idea musical','Nunca, los coros siempre cantan en armonía'],
+      a2:'En momentos de gran intensidad o para subrayar una idea musical',
+      e2:'El unísono se reserva para clímax expresivos o para textos importantes: la suma de todas las voces en una nota crea un efecto de gran poder y claridad.' },
+    { n:'Polifonía coral', em:'SVG', svgKey:'coro', solo:true,
+      q1:'¿Qué es la polifonía en un coro?',
+      ops1:['Cantar todos exactamente la misma nota','Cantar cada voz una melodía independiente que se combina armónicamente','Cantar muy despacio'],
+      a1:'Cantar cada voz una melodía independiente que se combina armónicamente',
+      e1:'La polifonía (del griego: "muchas voces") es la técnica donde cada cuerda coral canta una línea melódica propia, formando acordes al combinarse.' },
+    { n:'El empaste coral', em:'SVG', svgKey:'coro',
+      q1:'¿Qué define el "empaste" en una cuerda coral?',
+      ops1:['Que cada cantor cante con su volumen máximo individual','La unificación del color de las vocales, la afinación y la intensidad para sonar como un solo instrumento','Cantar con una voz excesivamente oscura y profunda'],
+      a1:'La unificación del color de las vocales, la afinación y la intensidad para sonar como un solo instrumento',
+      e1:'El empaste es la cualidad que hace que una cuerda coral suene como un único instrumento: unificación de las vocales, afinación compartida e intensidad equilibrada entre todos los cantantes.',
+      q2:'¿En qué se diferencia un coro con buen empaste de un grupo de solistas cantando juntos?',
+      ops2:['En nada, el resultado sonoro es exactamente igual','En que el coro suena como un único instrumento de muchas voces fundidas','En que el coro siempre canta más fuerte que los solistas'],
+      a2:'En que el coro suena como un único instrumento de muchas voces fundidas',
+      e2:'Un coro con buen empaste trasciende la suma de voces individuales: cada cantante subordina su color personal al color colectivo, creando una sonoridad homogénea y poderosa.' }
+  ]
+};
+
+const ALL_QUIZDATA = { q1:Q1, q2:Q2, q3:Q3, q4:Q4, q5:Q5, q6:Q6, q7:Q7, q8:Q8, q9:Q9 };
+
+/* ── Opciones de respuesta para quizzes de instrumento ── */
+const OPTS_O = ['Cordófono','Aerófono','Membranófono','Idiófono'];
+const OPTS_F = ['Cuerdas frotadas','Cuerdas pulsadas','Cuerdas percutidas',
+  'Viento madera','Viento metal','Percusión determinada','Percusión indeterminada'];
+
+/* ════════════════════════════════════════════════════
+   CONFIGURACIÓN
+════════════════════════════════════════════════════ */
+const APP_PASS = 'MUSICA1';
+
+const QUIZZES = [
+  { id:'q1', grp:1, title:'Quiz 1: Cordófonos',           sub:'Violín · Viola · Cello · Contrabajo · Arpa · Piano · Guitarra · Clavicémbalo', icon:'🎻', unlock:null,  code:'M2' },
+  { id:'q2', grp:1, title:'Quiz 2: Aerófonos',             sub:'Flautín · Flauta · Oboe · Clarinete · Fagot · Saxofón · Trompeta · Trompa · Trombón · Tuba', icon:'🎺', unlock:'M2', code:'M3' },
+  { id:'q3', grp:1, title:'Quiz 3: Membranófonos',         sub:'Tímpani · Bombo · Caja · Redoblante', icon:'🥁', unlock:'M3', code:'M4' },
+  { id:'q4', grp:1, title:'Quiz 4: Idiófonos',             sub:'Xilófono · Marimba · Vibráfono · Platillos · Triángulo', icon:'🎶', unlock:'M4', code:'M5' },
+  { id:'q5', grp:2, title:'Quiz 5: Repaso General I',      sub:'8 instrumentos de todas las familias', icon:'🎯', unlock:'M5', code:'M6' },
+  { id:'q6', grp:2, title:'Quiz 6: Repaso General II',     sub:'8 nuevos instrumentos · Clasificación completa', icon:'🎯', unlock:'M6', code:'M7' },
+  { id:'q7', grp:3, title:'Quiz 7: Cuba y Latinoamérica', sub:'Tres · Tumbadora · Charango · Zampoña · Bombo legüero y más', icon:'🌎', unlock:'M7', code:'M8' },
+  { id:'q8', grp:4, title:'Quiz 8: Las Voces Humanas',     sub:'Soprano · Mezzosoprano · Contralto · Tenor · Barítono · Bajo y más', icon:'🎤', unlock:'M8', code:'M9' },
+  { id:'q9', grp:4, title:'Quiz 9: Tipos de Coros',        sub:'Mixto · Femenino · Masculino · Cámara · Gospel · Empaste · Polifonía', icon:'SVG_CORO', unlock:'M9', code:null }
+];
+
+const MATERIALS = [
+  { id:'pdf1', type:'pdf',   title:'Guía: Clasificación de Instrumentos', sub:'Lectura de apoyo · Unidad 1', icon:'📄', file:'guia1.pdf' },
+  { id:'pdf2', type:'pdf',   title:'Mapa conceptual: Familias',           sub:'Resumen visual completo',      icon:'🗺️', file:'mapa1.pdf' },
+  { id:'aud1', type:'audio', title:'Audio: Sonidos de la orquesta',       sub:'Reconoce cada sección',        icon:'🔊', file:'audio1.mp3' },
+  { id:'aud2', type:'audio', title:'Audio: Timbres instrumentales',       sub:'Comparación de timbres',       icon:'🎧', file:'audio2.mp3' }
+];
+
+/* ════════════════════════════════════════════════════
+   ESTADO  (localStorage)
+════════════════════════════════════════════════════ */
+const SK='wmusic_v4';
+let ST=loadST();
+function loadST(){
+  try{ const s=localStorage.getItem(SK); return s?JSON.parse(s):{logged:false,name:'',unlocked:[],scores:{}} }
+  catch(e){ return{logged:false,name:'',unlocked:[],scores:{}} }
+}
+function saveST(){ try{ localStorage.setItem(SK,JSON.stringify(ST)) }catch(e){} }
+
+const $=id=>document.getElementById(id);
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [b[i],b[j]]=[b[j],b[i]];
+  }
+  return b;
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $('s-'+id).classList.add('active');
+  $('bnav').classList.toggle('vis', id==='home');
+  window.scrollTo(0,0);
+  if(id==='home') setTimeout(showInstallBtn, 400);
+}
+
+/* ════════════════════════════════════════════════════
+   LOGIN — corregido: usa variable local para ST
+════════════════════════════════════════════════════ */
+function doLogin(){
+  const name=$('lg-name').value.trim();
+  const pass=$('lg-pass').value.trim().toUpperCase();
+  const err=$('lg-err');
+  if(!name){ err.textContent='✏️ Escribe tu nombre primero.'; err.style.display='block'; return; }
+  if(pass !== APP_PASS.toUpperCase()){ err.textContent='❌ Clave incorrecta. Inténtalo de nuevo.'; err.style.display='block'; return; }
+  err.style.display='none';
+  ST.logged=true; ST.name=name; saveST();
+  $('uname').textContent=name;
+  renderHome();
+  showScreen('home');
+}
+
+$('btn-enter').addEventListener('click', doLogin);
+$('lg-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+// Auto-login si hay sesión válida guardada — diferido para evitar TDZ en GRP_LISTS
+window.addEventListener('DOMContentLoaded', function checkAutoLogin(){
+  const saved = loadST();
+  if(saved && saved.logged && saved.name){
+    ST = saved;
+    $('uname').textContent = ST.name;
+    renderHome();
+    showScreen('home');
+  }
+});
+
+$('btn-out').addEventListener('click',()=>{
+  ST={logged:false,name:'',unlocked:[],scores:{}}; saveST();
+  $('lg-name').value=''; $('lg-pass').value='';
+  showScreen('login');
+});
+
+/* ════════════════════════════════════════════════════
+   HOME
+════════════════════════════════════════════════════ */
+const GRP_LISTS={1:'qlist-1',2:'qlist-2',3:'qlist-3',4:'qlist-4'};
+function isUnlocked(q){ return !q.unlock || ST.unlocked.includes(q.unlock); }
+
+function renderHome(){
+  [1,2,3,4].forEach(g=>{
+    const list=$(GRP_LISTS[g]); list.innerHTML='';
+    QUIZZES.filter(q=>q.grp===g).forEach(q=>{
+      const locked=!isUnlocked(q), sc=ST.scores[q.id], done=sc!==undefined;
+      const d=document.createElement('div');
+      d.className=`mat-card qtype${locked?' locked':''}`;
+      const badge = locked
+        ? `<span class="badge b-lock">🔒</span>`
+        : done ? `<span class="badge b-done">✓</span>`
+               : `<span class="badge b-new">▶</span>`;
+      const stars = done ? `<div class="mini-stars">${'⭐'.repeat(sc)}${'☆'.repeat(5-sc)}</div>` : '';
+      const iconHtml = q.icon==='SVG_CORO'
+        ? `<div style="width:38px;height:38px;display:flex;align-items:center;justify-content:center">${SVGS.coro}</div>`
+        : q.icon;
+      d.innerHTML=`<div class="mat-icon">${iconHtml}</div>
+        <div class="mat-info"><div class="mat-t">${q.title}</div>
+        <div class="mat-s">${q.sub}</div>${stars}</div>${badge}`;
+      d.addEventListener('click',()=> locked ? openPin(q) : openQuiz(q));
+      list.appendChild(d);
+    });
+  });
+  renderMaterials();
+  updateProgress();
+}
+
+function renderMaterials(){
+  const list=$('mlist'); list.innerHTML='';
+  MATERIALS.forEach(m=>{
+    const isPdf=m.type==='pdf';
+    const d=document.createElement('div');
+    d.className=`mat-card ${isPdf?'ptype':'atype'}`;
+    d.innerHTML=`<div class="mat-icon">${m.icon}</div>
+      <div class="mat-info"><div class="mat-t">${m.title}</div>
+      <div class="mat-s">${m.sub}</div></div>
+      <span class="badge ${isPdf?'b-pdf':'b-aud'}">${isPdf?'PDF':'🎧'}</span>`;
+    d.addEventListener('click',()=>openMaterial(m));
+    list.appendChild(d);
+  });
+}
+
+function updateProgress(){
+  const done=Object.keys(ST.scores).length;
+  const pct=Math.round(done/QUIZZES.length*100);
+  $('uprog').style.width=pct+'%'; $('upct').textContent=pct+'%';
+}
+
+/* ════════════════════════════════════════════════════
+   MOTOR DE QUIZ — DUAL
+   • Modo 'inst': datos con {items:[{n,em,o,oe,f,fe}]}
+     → 2 preguntas por ítem (agente vibratorio + familia)
+   • Modo 'voces': datos con {items:[{n,em,q1,ops1,a1,e1,q2,ops2,a2,e2}]}
+     → 2 preguntas por ítem pero con texto y opciones propias
+   Ambos modos muestran dato curioso (tip) antes de empezar
+════════════════════════════════════════════════════ */
+let _curQ=null, _qdata=null, _qid='', _qmode='inst',
+    _qcur=0, _qqt=0, _qsc=0, _qdone=false, _qtot=0, _qstep=0,
+    _tipShown=false;
+
+const LTRS=['A','B','C','D','E','F'];
+
+function openQuiz(q){
+  _curQ=q; _qid=q.id;
+  _qdata = ALL_QUIZDATA[q.id];
+  _qmode = (q.id==='q8'||q.id==='q9') ? 'voces' : 'inst';
+  /* Total de preguntas: ítems con solo:true cuentan 1, los demás 2 */
+  _qtot  = _qdata.items.reduce((sum,it)=> sum + (it.solo ? 1 : 2), 0);
+  _qstep = 0;
+  _tipShown = false;
+  $('quiz-bar-title').textContent = q.title;
+  $('q-total').textContent = _qtot;
+  initQuiz();
+  showScreen('quiz');
+}
+
+function initQuiz(){
+  _qcur=0; _qqt=0; _qsc=0; _qdone=false; _tipShown=false; _qstep=0;
+  $('q-sc').textContent='0';
+  $('q-card').style.display='block';
+  $('q-result').style.display='none';
+  showTip();
+}
+
+/* ── Pantalla de dato curioso ── */
+function showTip(){
+  const tip = _qdata.tip || '';
+  const emojiEl=$('q-emoji'), nameEl=$('q-name'),
+        tlbl=$('q-tlbl'), qEl=$('q-question'),
+        optsEl=$('q-opts'), fbEl=$('q-fb'), nextBtn=$('q-next');
+
+  emojiEl.innerHTML='<span class="emoji-txt">💡</span>';
+  nameEl.textContent='¿Sabías que...?';
+  tlbl.textContent='DATO CURIOSO · ANTES DE EMPEZAR';
+  qEl.textContent=tip;
+  optsEl.innerHTML='';
+  fbEl.style.display='none';
+  $('q-pf').style.width='0%';
+  $('q-num').textContent='0';
+  nextBtn.textContent='¡Comenzar el quiz! →';
+  nextBtn.style.display='block';
+  _tipShown=true;
+}
+
+function loadQ(){
+  $('q-fb').style.display='none';
+  $('q-next').style.display='none';
+  _qdone=false;
+
+  if(_qcur>=_qdata.items.length){ showResult(); return; }
+
+  const d=_qdata.items[_qcur];
+
+  // Emoji / SVG
+  const emojiEl=$('q-emoji');
+  emojiEl.innerHTML = (d.em==='SVG') ? SVGS[d.svgKey] : `<span class="emoji-txt">${d.em}</span>`;
+  $('q-name').textContent=d.n;
+
+  $('q-pf').style.width=(_qstep/_qtot*100)+'%';
+  $('q-num').textContent=_qstep+1;
+  $('q-next').textContent='Siguiente →';
+
+  let qText, opts, ans, exp;
+
+  if(_qmode==='inst'){
+    if(_qqt===0){
+      qText='¿Cuál es la clasificación según el agente vibratorio?';
+      $('q-tlbl').textContent=`MISIÓN ${_qstep+1} DE ${_qtot} · AGENTE VIBRATORIO`;
+      ans=d.o; exp=d.oe;
+      opts=shuffle([...OPTS_O]);
+    } else {
+      qText='¿A qué familia de instrumentos pertenece?';
+      $('q-tlbl').textContent=`MISIÓN ${_qstep+1} DE ${_qtot} · FAMILIA`;
+      ans=d.f; exp=d.fe;
+      const distractors=shuffle(OPTS_F.filter(o=>o!==ans)).slice(0,3);
+      opts=shuffle([ans,...distractors]);
+    }
+  } else {
+    // modo voces: shuffle para evitar sesgo posicional
+    if(_qqt===0){
+      qText=d.q1; opts=shuffle([...d.ops1]); ans=d.a1; exp=d.e1;
+      $('q-tlbl').textContent=`PREGUNTA ${_qstep+1} DE ${_qtot}`;
+    } else {
+      qText=d.q2; opts=shuffle([...d.ops2]); ans=d.a2; exp=d.e2;
+      $('q-tlbl').textContent=`PREGUNTA ${_qstep+1} DE ${_qtot}`;
+    }
+  }
+
+  $('q-question').textContent=qText;
+
+  const optsEl=$('q-opts'); optsEl.innerHTML='';
+  opts.forEach((opt,i)=>{
+    const b=document.createElement('button'); b.className='opt';
+    b.innerHTML=`<span class="opt-l">${LTRS[i]}</span>${opt}`;
+    b.addEventListener('click',()=>{ if(!_qdone) pickQ(b,opt,ans,exp); });
+    optsEl.appendChild(b);
+  });
+}
+
+function pickQ(el,chosen,ans,exp){
+  _qdone=true;
+  const ok=chosen===ans;
+  document.querySelectorAll('.opt').forEach(o=>{
+    o.setAttribute('disabled',true);
+    // Marcar correcta comparando texto completo sin la letra prefija
+    const txt=o.childNodes[1]?.textContent?.trim()||o.textContent.trim().slice(1).trim();
+    if(txt===ans) o.classList.add('correct');
+  });
+  if(!ok) el.classList.add('wrong');
+  const fb=$('q-fb');
+  fb.innerHTML=`<strong>${ok?'🎉 ¡Muy bien!':'😊 ¡Casi!'}</strong> ${exp}`;
+  fb.className='fb '+(ok?'ok':'ko');
+  fb.style.display='block';
+  if(ok){ _qsc++; $('q-sc').textContent=_qsc; boom(); if(navigator.vibrate) navigator.vibrate(40); }
+  else { if(navigator.vibrate) navigator.vibrate([60,30,60]); }
+  $('q-next').style.display='block';
+}
+
+$('q-next').addEventListener('click',()=>{
+  if(_tipShown && _qcur===0 && _qqt===0){
+    _tipShown=false; loadQ(); return;
+  }
+  _qstep++;
+  const d=_qdata.items[_qcur];
+  if(_qqt===0 && !d.solo){
+    // ítem de dos preguntas: pasar a la segunda
+    _qqt=1;
+  } else {
+    // ítem solo o segunda pregunta completada: avanzar al siguiente ítem
+    _qqt=0;
+    _qcur++;
+  }
+  loadQ();
+});
+
+function showResult(){
+  $('q-card').style.display='none';
+  $('q-result').style.display='block';
+  $('q-pf').style.width='100%';
+  const pct=_qsc/_qtot;
+  const stars=Math.round(pct*5);
+  $('r-stars').textContent='⭐'.repeat(stars)+'☆'.repeat(5-stars);
+  $('r-score').innerHTML=`Obtuviste <b>${_qsc} / ${_qtot}</b> respuestas correctas`;
+  const code=_curQ?.code;
+  if(pct===1){     $('r-trophy').textContent='🏆'; $('r-title').textContent='¡PERFECTO! ¡ERES UN GENIO MUSICAL!'; boom(130); }
+  else if(pct>=.75){ $('r-trophy').textContent='🥇'; $('r-title').textContent='¡EXCELENTE TRABAJO!'; }
+  else if(pct>=.5){  $('r-trophy').textContent='🎵'; $('r-title').textContent='¡BUEN INTENTO!'; }
+  else{              $('r-trophy').textContent='💪'; $('r-title').textContent='¡SIGUE PRACTICANDO!'; }
+  if(pct>=.6 && code){ $('r-code').style.display='block'; $('r-codeval').textContent=code; }
+  else{ $('r-code').style.display='none'; }
+  if(_curQ){
+    ST.scores[_curQ.id]=stars;
+    if(code && pct>=.6 && !ST.unlocked.includes(code)) ST.unlocked.push(code);
+    saveST();
+  }
+  const nextQ=QUIZZES.find(q=>q.unlock===code);
+  $('r-next').style.display=nextQ?'block':'none';
+  // Si es el último quiz (Q9, sin código siguiente), mostrar botón de estadísticas
+  if(!code){
+    $('r-next').style.display='block';
+    $('r-next').textContent='📊 Ver mis Estadísticas Finales →';
+    $('r-next').onclick=()=>showFinalStats();
+  }
+}
+
+$('r-retry').addEventListener('click', initQuiz);
+$('r-home').addEventListener('click',()=>{ showScreen('home'); renderHome(); });
+$('r-next').addEventListener('click',()=>{
+  const code=_curQ?.code;
+  const nextQ=QUIZZES.find(q=>q.unlock===code);
+  if(nextQ && isUnlocked(nextQ)) openQuiz(nextQ);
+  else{ showScreen('home'); renderHome(); }
+});
+$('quiz-back').addEventListener('click',()=>{ showScreen('home'); renderHome(); });
+
+/* ════════════════════════════════════════════════════
+   ESTADÍSTICAS FINALES
+════════════════════════════════════════════════════ */
+function showFinalStats(){
+  showScreen('stats');
+  const totalStars = Object.values(ST.scores).reduce((a,b)=>a+b,0);
+  const maxStars   = QUIZZES.length * 5;
+  const done       = Object.keys(ST.scores).length;
+  const pct        = Math.round(totalStars / maxStars * 100);
+
+  // Trofeo y mensaje
+  let trophy, title, sub;
+  if(pct===100){      trophy='🏆'; title='¡MAESTRO MUSICAL PERFECTO!';          sub='¡Obtuviste la puntuación máxima en todos los quizzes!'; boom(150); }
+  else if(pct>=80){   trophy='🥇'; title='¡SOBRESALIENTE!';                     sub='Dominas la apreciación musical a nivel avanzado.'; boom(90); }
+  else if(pct>=60){   trophy='🥈'; title='¡MUY BUEN TRABAJO!';                  sub='Tienes una sólida base musical. ¡Sigue repasando!'; }
+  else if(pct>=40){   trophy='🥉'; title='¡BUEN ESFUERZO!';                     sub='Vas por buen camino. Repasa los quizzes con menos estrellas.'; }
+  else{               trophy='🎵'; title='¡SIGUE PRACTICANDO!';                 sub='La música se aprende con constancia. ¡Tú puedes!'; }
+
+  $('st-trophy').textContent=trophy;
+  $('st-title').textContent=title;
+  $('st-subtitle').textContent=sub;
+  $('st-total-stars').textContent='⭐'.repeat(Math.round(totalStars/maxStars*10))+'☆'.repeat(10-Math.round(totalStars/maxStars*10));
+  $('st-pct').textContent=pct+'%  ('+totalStars+' / '+maxStars+' ⭐)';
+  setTimeout(()=>{ $('st-bar').style.width=pct+'%'; },100);
+
+  // Lista detallada
+  const list=$('st-list'); list.innerHTML='';
+  QUIZZES.forEach(q=>{
+    const sc=ST.scores[q.id];
+    const row=document.createElement('div');
+    row.className='st-quiz-row';
+    if(sc!==undefined){
+      const qpct=Math.round(sc/5*100);
+      row.innerHTML=`<div class="st-quiz-icon">${q.icon}</div>
+        <div class="st-quiz-info">
+          <div class="st-quiz-name">${q.title}</div>
+          <div class="st-quiz-stars">${'⭐'.repeat(sc)}${'☆'.repeat(5-sc)}</div>
+        </div>
+        <div class="st-quiz-pct">${qpct}%</div>`;
+      row.style.borderLeftColor = qpct===100?'var(--green)':qpct>=60?'var(--blue)':'var(--pink)';
+      row.style.borderLeftWidth='3px';
+    } else {
+      row.innerHTML=`<div class="st-quiz-icon" style="opacity:.4">${q.icon}</div>
+        <div class="st-quiz-info">
+          <div class="st-quiz-name" style="opacity:.4">${q.title}</div>
+          <div class="st-quiz-stars" style="opacity:.4">☆☆☆☆☆</div>
+        </div>
+        <div class="st-quiz-pct" style="color:var(--muted)">—</div>`;
+    }
+    list.appendChild(row);
+  });
+}
+
+$('stats-home').addEventListener('click',()=>{ showScreen('home'); renderHome(); });
+$('st-home2').addEventListener('click',()=>{ showScreen('home'); renderHome(); });
+$('st-restart').addEventListener('click',()=>{
+  ST={logged:ST.logged,name:ST.name,unlocked:[],scores:{}}; saveST();
+  showScreen('home'); renderHome();
+});
+$('st-whatsapp').addEventListener('click',()=>{
+  const totalStars=Object.values(ST.scores).reduce((a,b)=>a+b,0);
+  const maxStars=QUIZZES.length*5;
+  const pct=Math.round(totalStars/maxStars*100);
+  const fecha=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+  let detalle='';
+  QUIZZES.forEach(q=>{
+    const sc=ST.scores[q.id];
+    if(sc!==undefined){
+      const stars='⭐'.repeat(sc)+'☆'.repeat(5-sc);
+      detalle+=`\n  ${q.title}: ${stars} (${Math.round(sc/5*100)}%)`;
+    } else {
+      detalle+=`\n  ${q.title}: — (sin completar)`;
+    }
+  });
+  const msg=`🎼 *REPORTE APRECIACIÓN MUSICAL*\n`+
+    `━━━━━━━━━━━━━━━━━━━━\n`+
+    `👤 *Estudiante:* ${ST.name}\n`+
+    `📅 *Fecha:* ${fecha}\n`+
+    `🏆 *Resultado global:* ${pct}% (${totalStars}/${maxStars} ⭐)\n`+
+    `━━━━━━━━━━━━━━━━━━━━\n`+
+    `*Detalle por quiz:*${detalle}\n`+
+    `━━━━━━━━━━━━━━━━━━━━\n`+
+    `_App Apreciación Musical · Prof. William_`;
+  const url='https://wa.me/?text='+encodeURIComponent(msg);
+  window.open(url,'_blank');
+});
+
+/* ════════════════════════════════════════════════════
+   MATERIAL
+════════════════════════════════════════════════════ */
+function openMaterial(m){
+  $('mat-bar-title').textContent=m.title;
+  $('mv-title').textContent=m.title;
+  $('mv-sub').textContent=m.sub;
+  $('mv-content').innerHTML = m.type==='pdf'
+    ? `<div class="ph-box"><div class="ph-icon">📄</div>
+       <div class="ph-msg">Coloca el archivo <b>${m.file}</b> en la misma carpeta.<br><br>
+       Se abrirá automáticamente cuando esté disponible.</div></div>`
+    : `<div class="aud-player"><div class="ph-icon">🎧</div>
+       <div class="ph-msg" style="margin-bottom:14px">Audio: <b>${m.file}</b></div>
+       <audio controls style="width:100%;margin-top:4px" src="${m.file}">Tu navegador no soporta audio.</audio></div>`;
+  showScreen('material');
+}
+$('mat-back').addEventListener('click',()=>showScreen('home'));
+
+/* ════════════════════════════════════════════════════
+   MODAL PIN
+════════════════════════════════════════════════════ */
+let _pq=null;
+function openPin(q){
+  _pq=q;
+  const prev=QUIZZES.find(x=>x.code===q.unlock);
+  $('pin-sub').textContent = prev
+    ? `Completa "${prev.title}" con al menos 60% para obtener el código.`
+    : `Ingresa el código del quiz anterior.`;
+  $('pin-inp').value=''; $('pin-err').textContent='';
+  $('pin-modal').classList.add('open');
+  setTimeout(()=>$('pin-inp').focus(),300);
+}
+$('pin-no').addEventListener('click',()=>{ $('pin-modal').classList.remove('open'); _pq=null; });
+$('pin-ok').addEventListener('click', checkPin);
+$('pin-inp').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPin(); });
+function checkPin(){
+  const val=$('pin-inp').value.trim().toUpperCase();
+  if(!_pq) return;
+  if(val===_pq.unlock.toUpperCase()){
+    if(!ST.unlocked.includes(_pq.unlock)){ ST.unlocked.push(_pq.unlock); saveST(); }
+    $('pin-modal').classList.remove('open');
+    openQuiz(_pq);
+  } else {
+    $('pin-err').textContent='❌ Código incorrecto. Revisa bien.';
+    $('pin-inp').value=''; $('pin-inp').focus();
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   NAV
+════════════════════════════════════════════════════ */
+function navTo(id){
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  $('ni-'+id)?.classList.add('active');
+  if(id==='progress'){
+    const done=Object.keys(ST.scores).length;
+    const total=Object.values(ST.scores).reduce((a,b)=>a+b,0);
+    const pct=Math.round(total/(QUIZZES.length*5)*100)||0;
+    const fecha=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+    let detalle='';
+    QUIZZES.forEach(q=>{
+      const sc=ST.scores[q.id];
+      if(sc!==undefined){
+        detalle+=`\n  ${q.title}: ${'⭐'.repeat(sc)}${'☆'.repeat(5-sc)} (${Math.round(sc/5*100)}%)`;
+      } else {
+        detalle+=`\n  ${q.title}: — (sin completar)`;
+      }
+    });
+    const msg=`🎼 *REPORTE APRECIACIÓN MUSICAL*\n`+
+      `━━━━━━━━━━━━━━━━━━━━\n`+
+      `👤 *Estudiante:* ${ST.name}\n`+
+      `📅 *Fecha:* ${fecha}\n`+
+      `📊 *Quizzes completados:* ${done} / ${QUIZZES.length}\n`+
+      `🏆 *Resultado global:* ${pct}% (${total}/${QUIZZES.length*5} ⭐)\n`+
+      `━━━━━━━━━━━━━━━━━━━━\n`+
+      `*Detalle por quiz:*${detalle}\n`+
+      `━━━━━━━━━━━━━━━━━━━━\n`+
+      `_App Apreciación Musical · Prof. William_`;
+    const url='https://wa.me/?text='+encodeURIComponent(msg);
+    window.open(url,'_blank');
+    $('ni-home').classList.add('active');
+  }
+  if(id==='help'){
+    alert('❓ Ayuda\n\n1. Ingresa la clave del Prof. William.\n2. Completa los quizzes en orden.\n3. Con 60% o más recibes el código del siguiente quiz.\n4. Los materiales PDF y audio siempre están disponibles.\n5. Usa el botón 📲 ENVIAR para compartir tu reporte por WhatsApp.\n\n¡Mucha suerte, músico! 🎵');
+    $('ni-home').classList.add('active');
+  }
+}
+
+/* ════════════════════════════════════════════════════
+   PARTÍCULAS & ESTRELLAS DE FONDO
+════════════════════════════════════════════════════ */
+const COLS=['#00f0ff','#bf00ff','#00ff88','#ff00aa','#ffe000','#fff'];
+function boom(n=55){
+  const c=$('pts');
+  for(let i=0;i<n;i++){
+    const p=document.createElement('div'); p.className='pt';
+    const s=Math.random()*10+4, dur=(.7+Math.random()*1.2).toFixed(2);
+    p.style.cssText=`width:${s}px;height:${s}px;background:${COLS[~~(Math.random()*COLS.length)]};`+
+      `left:${10+Math.random()*80}%;top:0;--d:${dur}s;animation-delay:${(Math.random()*.4).toFixed(2)}s;box-shadow:0 0 5px currentColor`;
+    c.appendChild(p); setTimeout(()=>p.remove(),(+dur+.6)*1e3);
+  }
+}
+(function(){
+  const sf=$('sf');
+  for(let i=0;i<100;i++){
+    const s=document.createElement('div'); s.className='st';
+    const sz=Math.random()*2.4+.5;
+    s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;top:${Math.random()*100}%;--d:${2+Math.random()*5}s;animation-delay:${Math.random()*5}s`;
+    sf.appendChild(s);
+  }
+})();
+
+/* ── PWA: Instalación controlada ── */
+let _installPrompt = null;
+
+// Guardar el prompt si el navegador lo ofrece (Chrome, Samsung Internet, Edge...)
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _installPrompt = e;
+});
+
+// Si ya se instaló, ocultar botón
+window.addEventListener('appinstalled', () => {
+  _installPrompt = null;
+  hideInstallBtn();
+});
+
+function showInstallBtn(){
+  // No mostrar si ya corre como app instalada
+  if(window.matchMedia('(display-mode: standalone)').matches) return;
+  if(window.navigator.standalone === true) return; // iOS Safari
+  const btn = document.getElementById('ni-install');
+  if(btn) btn.style.display = 'flex';
+}
+
+function hideInstallBtn(){
+  const btn = document.getElementById('ni-install');
+  if(btn) btn.style.display = 'none';
+}
+
+function pwaInstall(){
+  if(_installPrompt){
+    // Prompt nativo disponible → usarlo directamente
+    _installPrompt.prompt();
+    _installPrompt.userChoice.then(r => {
+      if(r.outcome === 'accepted') hideInstallBtn();
+      _installPrompt = null;
+    });
+  } else {
+    // Sin prompt nativo → instrucciones según navegador/OS
+    const ua = navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(ua);
+    const isSamsung = /samsungbrowser/.test(ua);
+    if(isIOS){
+      alert('📲 Instalar en iPhone/iPad:\n\n1. Toca el botón compartir (cuadro con flecha) en Safari\n2. Selecciona "Añadir a pantalla de inicio"\n3. Toca "Añadir"');
+    } else if(isSamsung){
+      alert('📲 Instalar en Samsung Internet:\n\n1. Toca el menú (☰) abajo a la derecha\n2. Selecciona "Añadir página a"\n3. Elige "Pantalla de inicio"');
+    } else {
+      alert('📲 Instalar la app:\n\n1. Toca el menú del navegador (⋮) arriba a la derecha\n2. Selecciona "Añadir a pantalla de inicio" o "Instalar app"\n3. Confirma\n\nSi no aparece esa opción, recarga la página e intenta de nuevo.');
+    }
+  }
+}
+
+/* ── PWA: Registro del Service Worker ── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg=>{
+        reg.addEventListener('updatefound', ()=>{
+          const nw = reg.installing;
+          nw.addEventListener('statechange', ()=>{
+            if(nw.state==='installed' && navigator.serviceWorker.controller){
+              console.log('[SW] Nueva versión disponible');
+            }
+          });
+        });
+      })
+      .catch(e => console.warn('[SW] Error:', e));
+  });
+}
+</script>
+</body>
+</html>
