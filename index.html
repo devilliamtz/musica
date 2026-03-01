@@ -296,6 +296,17 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);
 .pt{position:absolute;border-radius:50%;animation:pf var(--d) linear forwards}
 @keyframes pf{0%{transform:translateY(-10px) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
 footer{text-align:center;padding:24px 18px 8px;color:rgba(224,216,255,.18);font-size:.67em;letter-spacing:1px;position:relative;z-index:1}
+/* BOTÓN ENVIAR — WhatsApp destacado */
+#ni-progress{color:#25d366;position:relative}
+#ni-progress .ni-ic{font-size:1.5em}
+#ni-progress::before{content:'';position:absolute;inset:-3px;border-radius:14px;
+  border:2px solid #25d366;animation:wa-pulse 2s ease-in-out infinite;opacity:.6}
+@keyframes wa-pulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.12);opacity:0}}
+/* RECORDATORIO WA al finalizar quiz */
+#r-wa-remind{display:none;background:rgba(37,211,102,.09);border:1.5px solid rgba(37,211,102,.35);
+  border-radius:14px;padding:13px 15px;margin-bottom:14px;text-align:center;
+  font-size:.86em;color:#a8ffcc;line-height:1.5;animation:fin .4s ease}
+#r-wa-remind b{color:#25d366}
 #s-stats .quiz-bar{border-bottom-color:rgba(255,224,0,.25)}
 .st-quiz-row{background:var(--card);border:1px solid rgba(255,255,255,.08);border-radius:13px;padding:10px 13px;display:flex;align-items:center;gap:10px}
 .st-quiz-icon{width:34px;height:34px;border-radius:9px;background:rgba(0,240,255,.09);display:flex;align-items:center;justify-content:center;font-size:1.1em;flex-shrink:0}
@@ -352,7 +363,7 @@ footer{text-align:center;padding:24px 18px 8px;color:rgba(224,216,255,.18);font-
     <div class="mat-grid" id="qlist-4"></div>
     <div class="sec-title">📚 Materiales de apoyo</div>
     <div class="mat-grid" id="mlist"></div>
-    <footer>Prof. William · Apreciación Musical · v12.0</footer>
+    <footer>Prof. William · Apreciación Musical · v13</footer>
   </div>
 </div>
 
@@ -387,6 +398,10 @@ footer{text-align:center;padding:24px 18px 8px;color:rgba(224,216,255,.18);font-
       <div class="code-box" id="r-code" style="display:none">
         <p>🔓 ¡Código para el siguiente quiz!</p>
         <div class="code-val" id="r-codeval"></div>
+      </div>
+      <div id="r-wa-remind">
+        📲 <b>Recuerda enviar tu reporte al Prof. William.</b><br>
+        Toca el botón <b>ENVIAR</b> en el menú de abajo.
       </div>
       <div class="res-btns">
         <button class="btn-pri" id="r-next">🚀 Siguiente Quiz →</button>
@@ -472,7 +487,7 @@ footer{text-align:center;padding:24px 18px 8px;color:rgba(224,216,255,.18);font-
 
 <script>
 /* ══════════════════════════════════════════════════════
-   APRECIACIÓN MUSICAL · Prof. William · v12.0
+   APRECIACIÓN MUSICAL · Prof. William · v13
    NEW v11: Q9 revisado (especialista canto coral Cuba)
             SVG coro · solo:true · motor _qstep dinámico
             shuffle voces · Q8 Soprano ligera+Bajo-barítono
@@ -1310,13 +1325,15 @@ function showResult(){
   else if(pct>=.75){ $('r-trophy').textContent='🥇'; $('r-title').textContent='¡EXCELENTE TRABAJO!'; }
   else if(pct>=.5){  $('r-trophy').textContent='🎵'; $('r-title').textContent='¡BUEN INTENTO!'; }
   else{              $('r-trophy').textContent='💪'; $('r-title').textContent='¡SIGUE PRACTICANDO!'; }
-  if(pct>=.6 && code){ $('r-code').style.display='block'; $('r-codeval').textContent=code; }
+  if(pct>=.75 && code){ $('r-code').style.display='block'; $('r-codeval').textContent=code; }
   else{ $('r-code').style.display='none'; }
   if(_curQ){
     ST.scores[_curQ.id]=stars;
-    if(code && pct>=.6 && !ST.unlocked.includes(code)) ST.unlocked.push(code);
+    if(code && pct>=.75 && !ST.unlocked.includes(code)) ST.unlocked.push(code);
     saveST();
   }
+  // Recordatorio de envío
+  $('r-wa-remind').style.display='block';
   const nextQ=QUIZZES.find(q=>q.unlock===code);
   $('r-next').style.display=nextQ?'block':'none';
   // Si es el último quiz (Q9, sin código siguiente), mostrar botón de estadísticas
@@ -1397,30 +1414,7 @@ $('st-restart').addEventListener('click',()=>{
   showScreen('home'); renderHome();
 });
 $('st-whatsapp').addEventListener('click',()=>{
-  const totalStars=Object.values(ST.scores).reduce((a,b)=>a+b,0);
-  const maxStars=QUIZZES.length*5;
-  const pct=Math.round(totalStars/maxStars*100);
-  const fecha=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
-  let detalle='';
-  QUIZZES.forEach(q=>{
-    const sc=ST.scores[q.id];
-    if(sc!==undefined){
-      const stars='⭐'.repeat(sc)+'☆'.repeat(5-sc);
-      detalle+=`\n  ${q.title}: ${stars} (${Math.round(sc/5*100)}%)`;
-    } else {
-      detalle+=`\n  ${q.title}: — (sin completar)`;
-    }
-  });
-  const msg=`🎼 *REPORTE APRECIACIÓN MUSICAL*\n`+
-    `━━━━━━━━━━━━━━━━━━━━\n`+
-    `👤 *Estudiante:* ${ST.name}\n`+
-    `📅 *Fecha:* ${fecha}\n`+
-    `🏆 *Resultado global:* ${pct}% (${totalStars}/${maxStars} ⭐)\n`+
-    `━━━━━━━━━━━━━━━━━━━━\n`+
-    `*Detalle por quiz:*${detalle}\n`+
-    `━━━━━━━━━━━━━━━━━━━━\n`+
-    `_App Apreciación Musical · Prof. William_`;
-  const url='https://wa.me/?text='+encodeURIComponent(msg);
+  const url='https://wa.me/?text='+encodeURIComponent(buildReport());
   window.open(url,'_blank');
 });
 
@@ -1450,7 +1444,7 @@ function openPin(q){
   _pq=q;
   const prev=QUIZZES.find(x=>x.code===q.unlock);
   $('pin-sub').textContent = prev
-    ? `Completa "${prev.title}" con al menos 60% para obtener el código.`
+    ? `Completa "${prev.title}" con al menos 75% para obtener el código.`
     : `Ingresa el código del quiz anterior.`;
   $('pin-inp').value=''; $('pin-err').textContent='';
   $('pin-modal').classList.add('open');
@@ -1472,6 +1466,39 @@ function checkPin(){
   }
 }
 
+function buildReport(){
+  const done=Object.keys(ST.scores).length;
+  const total=Object.values(ST.scores).reduce((a,b)=>a+b,0);
+  const pct=Math.round(total/(QUIZZES.length*5)*100)||0;
+  const fecha=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const hora=new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});
+  let detalle='';
+  QUIZZES.forEach(q=>{
+    const sc=ST.scores[q.id];
+    if(sc!==undefined){
+      const stars='⭐'.repeat(sc)+'☆'.repeat(5-sc);
+      const qpct=Math.round(sc/5*100);
+      const aprobado=qpct>=75;
+      const errList=ST.errors&&ST.errors[q.id];
+      const errItems=errList&&errList.length?errList.map(e=>e.item).filter((v,i,a)=>a.indexOf(v)===i):[]; 
+      detalle+=`\n${aprobado?'✅':'❌'} ${q.title}\n   ${sc*16/5|0}/16 correctas · ${qpct}% · ${stars}`;
+      if(!aprobado&&errItems.length) detalle+=`\n   ⚠️ Errores en: ${errItems.join(', ')}`;
+    } else {
+      detalle+=`\n⬜ ${q.title}: sin completar`;
+    }
+  });
+  return `🎼 *REPORTE APRECIACIÓN MUSICAL*\n`+
+    `━━━━━━━━━━━━━━━━━━━━\n`+
+    `👤 *Estudiante:* ${ST.name}\n`+
+    `📅 *Fecha:* ${fecha} · ${hora}\n`+
+    `📊 *Completados:* ${done} / ${QUIZZES.length} quizzes\n`+
+    `🏆 *Resultado global:* ${pct}%\n`+
+    `━━━━━━━━━━━━━━━━━━━━\n`+
+    `DETALLE POR QUIZ:${detalle}\n`+
+    `━━━━━━━━━━━━━━━━━━━━\n`+
+    `_App Apreciación Musical · Prof. William_`;
+}
+
 /* ════════════════════════════════════════════════════
    NAV
 ════════════════════════════════════════════════════ */
@@ -1479,35 +1506,12 @@ function navTo(id){
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
   $('ni-'+id)?.classList.add('active');
   if(id==='progress'){
-    const done=Object.keys(ST.scores).length;
-    const total=Object.values(ST.scores).reduce((a,b)=>a+b,0);
-    const pct=Math.round(total/(QUIZZES.length*5)*100)||0;
-    const fecha=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
-    let detalle='';
-    QUIZZES.forEach(q=>{
-      const sc=ST.scores[q.id];
-      if(sc!==undefined){
-        detalle+=`\n  ${q.title}: ${'⭐'.repeat(sc)}${'☆'.repeat(5-sc)} (${Math.round(sc/5*100)}%)`;
-      } else {
-        detalle+=`\n  ${q.title}: — (sin completar)`;
-      }
-    });
-    const msg=`🎼 *REPORTE APRECIACIÓN MUSICAL*\n`+
-      `━━━━━━━━━━━━━━━━━━━━\n`+
-      `👤 *Estudiante:* ${ST.name}\n`+
-      `📅 *Fecha:* ${fecha}\n`+
-      `📊 *Quizzes completados:* ${done} / ${QUIZZES.length}\n`+
-      `🏆 *Resultado global:* ${pct}% (${total}/${QUIZZES.length*5} ⭐)\n`+
-      `━━━━━━━━━━━━━━━━━━━━\n`+
-      `*Detalle por quiz:*${detalle}\n`+
-      `━━━━━━━━━━━━━━━━━━━━\n`+
-      `_App Apreciación Musical · Prof. William_`;
-    const url='https://wa.me/?text='+encodeURIComponent(msg);
+    const url='https://wa.me/?text='+encodeURIComponent(buildReport());
     window.open(url,'_blank');
     $('ni-home').classList.add('active');
   }
   if(id==='help'){
-    alert('❓ Ayuda\n\n1. Ingresa la clave del Prof. William.\n2. Completa los quizzes en orden.\n3. Con 60% o más recibes el código del siguiente quiz.\n4. Los materiales PDF y audio siempre están disponibles.\n5. Usa el botón 📲 ENVIAR para compartir tu reporte por WhatsApp.\n\n¡Mucha suerte, músico! 🎵');
+    alert('❓ Ayuda\n\n1. Ingresa la clave del Prof. William.\n2. Completa los quizzes en orden.\n3. Con 75% o más recibes el código del siguiente quiz.\n4. Los materiales PDF y audio siempre están disponibles.\n5. Usa el botón 📲 ENVIAR para compartir tu reporte por WhatsApp.\n\n¡Mucha suerte, músico! 🎵');
     $('ni-home').classList.add('active');
   }
 }
