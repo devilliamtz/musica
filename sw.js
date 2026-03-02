@@ -6,7 +6,7 @@
    segundo plano y se activa en la próxima apertura.
 ══════════════════════════════════════════════════════ */
 
-const CACHE_NAME  = 'musica-v14';
+const CACHE_NAME  = 'musica-v15';
 const CACHE_SHELL = [
   './',
   './index.html',
