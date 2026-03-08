@@ -1175,7 +1175,7 @@ function updateProgress(){
 ════════════════════════════════════════════════════ */
 let _curQ=null, _qdata=null, _qid='', _qmode='inst',
     _qcur=0, _qqt=0, _qsc=0, _qdone=false, _qtot=0, _qstep=0,
-    _tipShown=false;
+    _tipShown=false, _qerrs=[];
 
 const LTRS=['A','B','C','D','E','F'];
 
@@ -1194,7 +1194,7 @@ function openQuiz(q){
 }
 
 function initQuiz(){
-  _qcur=0; _qqt=0; _qsc=0; _qdone=false; _tipShown=false; _qstep=0;
+  _qcur=0; _qqt=0; _qsc=0; _qdone=false; _tipShown=false; _qstep=0; _qerrs=[];
   $('q-sc').textContent='0';
   $('q-card').style.display='block';
   $('q-result').style.display='none';
@@ -1271,21 +1271,23 @@ function loadQ(){
   opts.forEach((opt,i)=>{
     const b=document.createElement('button'); b.className='opt';
     b.innerHTML=`<span class="opt-l">${LTRS[i]}</span>${opt}`;
-    b.addEventListener('click',()=>{ if(!_qdone) pickQ(b,opt,ans,exp); });
+    b.addEventListener('click',()=>{ if(!_qdone) pickQ(b,opt,ans,exp,d.n,qText); });
     optsEl.appendChild(b);
   });
 }
 
-function pickQ(el,chosen,ans,exp){
+function pickQ(el,chosen,ans,exp,itemName,qLabel){
   _qdone=true;
   const ok=chosen===ans;
   document.querySelectorAll('.opt').forEach(o=>{
     o.setAttribute('disabled',true);
-    // Marcar correcta comparando texto completo sin la letra prefija
     const txt=o.childNodes[1]?.textContent?.trim()||o.textContent.trim().slice(1).trim();
     if(txt===ans) o.classList.add('correct');
   });
-  if(!ok) el.classList.add('wrong');
+  if(!ok){
+    el.classList.add('wrong');
+    _qerrs.push({item:itemName, q:qLabel, wrong:chosen, right:ans});
+  }
   const fb=$('q-fb');
   fb.innerHTML=`<strong>${ok?'🎉 ¡Muy bien!':'😊 ¡Casi!'}</strong> ${exp}`;
   fb.className='fb '+(ok?'ok':'ko');
@@ -1329,6 +1331,10 @@ function showResult(){
   else{ $('r-code').style.display='none'; }
   if(_curQ){
     ST.scores[_curQ.id]=stars;
+    if(!ST.results) ST.results={};
+    ST.results[_curQ.id]={correct:_qsc, total:_qtot, pct:Math.round(pct*100)};
+    if(!ST.errors) ST.errors={};
+    ST.errors[_curQ.id]=_qerrs.slice();
     if(code && pct>=.75 && !ST.unlocked.includes(code)) ST.unlocked.push(code);
     saveST();
   }
@@ -1477,14 +1483,26 @@ function buildReport(){
     const sc=ST.scores[q.id];
     if(sc!==undefined){
       const stars='⭐'.repeat(sc)+'☆'.repeat(5-sc);
-      const qpct=Math.round(sc/5*100);
+      const res=ST.results&&ST.results[q.id];
+      const correct=res?res.correct:'-';
+      const tot=res?res.total:'-';
+      const qpct=res?res.pct:Math.round(sc/5*100);
       const aprobado=qpct>=75;
       const errList=ST.errors&&ST.errors[q.id];
-      const errItems=errList&&errList.length?errList.map(e=>e.item).filter((v,i,a)=>a.indexOf(v)===i):[]; 
-      detalle+=`\n${aprobado?'✅':'❌'} ${q.title}\n   ${sc*16/5|0}/16 correctas · ${qpct}% · ${stars}`;
-      if(!aprobado&&errItems.length) detalle+=`\n   ⚠️ Errores en: ${errItems.join(', ')}`;
+      const errItems=errList&&errList.length
+        ? errList.map(e=>e.item).filter((v,i,a)=>a.indexOf(v)===i)
+        : [];
+      const errMuestra=errItems.slice(0,5);
+      const errTrunc=errItems.length>5?'...':'';
+      detalle+=`\n${aprobado?'✅':'❌'} *${q.title}* (${qpct}%)`;
+      detalle+=`\n   ${correct}/${tot} correctas · ${stars}`;
+      if(errItems.length){
+        detalle+=`\n   └─ _Reforzar:_ ${errMuestra.join(', ')}${errTrunc}`;
+      } else {
+        detalle+=`\n   └─ _¡Sin errores registrados!_ ✨`;
+      }
     } else {
-      detalle+=`\n⬜ ${q.title}: sin completar`;
+      detalle+=`\n⬜ _${q.title}:_ sin completar`;
     }
   });
   return `🎼 *REPORTE APRECIACIÓN MUSICAL*\n`+
@@ -1494,7 +1512,7 @@ function buildReport(){
     `📊 *Completados:* ${done} / ${QUIZZES.length} quizzes\n`+
     `🏆 *Resultado global:* ${pct}%\n`+
     `━━━━━━━━━━━━━━━━━━━━\n`+
-    `DETALLE POR QUIZ:${detalle}\n`+
+    `*DIAGNÓSTICO POR QUIZ:*${detalle}\n`+
     `━━━━━━━━━━━━━━━━━━━━\n`+
     `_App Apreciación Musical · Prof. William_`;
 }
