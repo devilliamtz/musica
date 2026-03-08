@@ -363,7 +363,7 @@ footer{text-align:center;padding:24px 18px 8px;color:rgba(224,216,255,.18);font-
     <div class="mat-grid" id="qlist-4"></div>
     <div class="sec-title">📚 Materiales de apoyo</div>
     <div class="mat-grid" id="mlist"></div>
-    <footer>Prof. William · Apreciación Musical · v13</footer>
+    <footer>Prof. William · Apreciación Musical · v16</footer>
   </div>
 </div>
 
@@ -487,7 +487,7 @@ footer{text-align:center;padding:24px 18px 8px;color:rgba(224,216,255,.18);font-
 
 <script>
 /* ══════════════════════════════════════════════════════
-   APRECIACIÓN MUSICAL · Prof. William · v13
+   APRECIACIÓN MUSICAL · Prof. William · v16
    NEW v11: Q9 revisado (especialista canto coral Cuba)
             SVG coro · solo:true · motor _qstep dinámico
             shuffle voces · Q8 Soprano ligera+Bajo-barítono
@@ -1053,8 +1053,8 @@ const MATERIALS = [
 const SK='wmusic_v4';
 let ST=loadST();
 function loadST(){
-  try{ const s=localStorage.getItem(SK); return s?JSON.parse(s):{logged:false,name:'',unlocked:[],scores:{}} }
-  catch(e){ return{logged:false,name:'',unlocked:[],scores:{}} }
+  try{ const s=localStorage.getItem(SK); return s?JSON.parse(s):{logged:false,name:'',unlocked:[],scores:{},results:{},errors:{}} }
+  catch(e){ return{logged:false,name:'',unlocked:[],scores:{},results:{},errors:{}} }
 }
 function saveST(){ try{ localStorage.setItem(SK,JSON.stringify(ST)) }catch(e){} }
 
@@ -1107,7 +1107,7 @@ window.addEventListener('DOMContentLoaded', function checkAutoLogin(){
 });
 
 $('btn-out').addEventListener('click',()=>{
-  ST={logged:false,name:'',unlocked:[],scores:{}}; saveST();
+  ST={logged:false,name:'',unlocked:[],scores:{},results:{},errors:{}}; saveST();
   $('lg-name').value=''; $('lg-pass').value='';
   showScreen('login');
 });
@@ -1416,7 +1416,7 @@ function showFinalStats(){
 $('stats-home').addEventListener('click',()=>{ showScreen('home'); renderHome(); });
 $('st-home2').addEventListener('click',()=>{ showScreen('home'); renderHome(); });
 $('st-restart').addEventListener('click',()=>{
-  ST={logged:ST.logged,name:ST.name,unlocked:[],scores:{}}; saveST();
+  ST={logged:ST.logged,name:ST.name,unlocked:[],scores:{},results:{},errors:{}}; saveST();
   showScreen('home'); renderHome();
 });
 $('st-whatsapp').addEventListener('click',()=>{
